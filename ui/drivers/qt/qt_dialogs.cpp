@@ -51,7 +51,9 @@ extern "C" {
 #ifdef HAVE_MENU
 #include "../../../menu/menu_driver.h"
 #include "../../../menu/menu_entries.h"
+#if defined(HAVE_CG) || defined(HAVE_GLSL) || defined(HAVE_SLANG) || defined(HAVE_HLSL)
 #include "../../../menu/menu_shader.h"
+#endif
 #endif
 
 #include "../../../command.h"
@@ -67,8 +69,10 @@ extern "C" {
 }
 #endif
 
+#if defined(HAVE_MENU)
 #if defined(HAVE_CG) || defined(HAVE_GLSL) || defined(HAVE_SLANG) || defined(HAVE_HLSL)
 #include "shaderparamsdialog.h"
+#endif
 #endif
 
 #include "qt_options.h"
@@ -645,8 +649,9 @@ void ViewOptionsDialog::addCategory(OptionsCategory *category)
 void ViewOptionsDialog::repaintIcons()
 {
    unsigned i;
+   size_t list_size = (size_t)m_categoryList.size();
 
-   for (i = 0; i < m_categoryList.size(); i++)
+   for (i = 0; i < list_size; i++)
       m_optionsList->item(i)->setIcon(getIcon(m_categoryList.at(i)));
 }
 #else
@@ -676,12 +681,13 @@ ViewOptionsDialog::ViewOptionsDialog(MainWindow *mainwindow, QWidget *parent) :
 
 void ViewOptionsDialog::showDialog()
 {
-#ifndef HAVE_MENU
-   m_viewOptionsWidget->loadViewOptions();
-#else
+#ifdef HAVE_MENU
    unsigned i;
-   for (i = 0; i < m_categoryList.size(); i++)
+   size_t list_size = (size_t)m_categoryList.size();
+   for (i = 0; i < list_size; i++)
       m_categoryList.at(i)->load();
+#else
+   m_viewOptionsWidget->loadViewOptions();
 #endif
    show();
    activateWindow();
@@ -695,8 +701,9 @@ void ViewOptionsDialog::hideDialog()
 void ViewOptionsDialog::onRejected()
 {
 #ifdef HAVE_MENU
-   int i;
-   for (i = 0; i < m_categoryList.size(); i++)
+   unsigned i;
+   size_t list_size = (size_t)m_categoryList.size();
+   for (i = 0; i < list_size; i++)
       m_categoryList.at(i)->apply();
 #endif
 }
@@ -1188,8 +1195,15 @@ void CoreOptionsDialog::buildLayout()
 
                if (!string_is_empty(option->info))
                {
-                  char *new_info = strdup(option->info);
-                  word_wrap(new_info, new_info, 50, true, 0);
+                  char *new_info;
+                  size_t new_info_len = strlen(option->info) + 1;
+
+                  new_info = (char *)malloc(new_info_len);
+                  if (!new_info)
+                     return;
+                  new_info[0] = '\0';
+
+                  word_wrap(new_info, new_info_len, option->info, 50, 100, 0);
                   descLabel->setToolTip(new_info);
                   combo_box->setToolTip(new_info);
                   free(new_info);
@@ -1285,7 +1299,7 @@ void CoreOptionsDialog::onCoreOptionResetAllClicked()
    }
 }
 
-
+#if defined(HAVE_MENU)
 #if defined(HAVE_CG) || defined(HAVE_GLSL) || defined(HAVE_SLANG) || defined(HAVE_HLSL)
 enum
 {
@@ -1738,20 +1752,29 @@ void ShaderParamsDialog::onShaderLoadPresetClicked()
    if (!menu_shader)
       return;
 
-   filter = "Shader Preset (";
+   filter.append("Shader Preset (");
 
    /* NOTE: Maybe we should have a way to get a list 
     * of all shader types instead of hard-coding this? */
    if (video_shader_is_supported(RARCH_SHADER_CG))
-      filter += QLatin1Literal(" *") + ".cgp";
+   {
+      filter.append(QLatin1Literal(" *"));
+      filter.append(".cgp");
+   }
 
    if (video_shader_is_supported(RARCH_SHADER_GLSL))
-      filter += QLatin1Literal(" *") + ".glslp";
+   {
+      filter.append(QLatin1Literal(" *"));
+      filter.append(".glslp");
+   }
 
    if (video_shader_is_supported(RARCH_SHADER_SLANG))
-      filter += QLatin1Literal(" *") + ".slangp";
+   {
+      filter.append(QLatin1Literal(" *"));
+      filter.append(".slangp");
+   }
 
-   filter    += ")";
+   filter.append(")");
    path       = QFileDialog::getOpenFileName(
          this,
          msg_hash_to_str(MENU_ENUM_LABEL_VALUE_VIDEO_SHADER_PRESET),
@@ -1888,20 +1911,20 @@ void ShaderParamsDialog::onShaderAddPassClicked()
    if (!menu_shader)
       return;
 
-   filter = "Shader (";
+   filter.append("Shader (");
 
    /* NOTE: Maybe we should have a way to get a list 
     * of all shader types instead of hard-coding this? */
    if (video_shader_is_supported(RARCH_SHADER_CG))
-      filter += QLatin1Literal(" *.cg");
+      filter.append(QLatin1Literal(" *.cg"));
 
    if (video_shader_is_supported(RARCH_SHADER_GLSL))
-      filter += QLatin1Literal(" *.glsl");
+      filter.append(QLatin1Literal(" *.glsl"));
 
    if (video_shader_is_supported(RARCH_SHADER_SLANG))
-      filter += QLatin1Literal(" *.slang");
+      filter.append(QLatin1Literal(" *.slang"));
 
-   filter += ")";
+   filter.append(")");
 
    path = QFileDialog::getOpenFileName(
          this,
@@ -2966,4 +2989,5 @@ void ShaderParamsDialog::onShaderParamDoubleSpinBoxValueChanged(double value)
       }
    }
 }
+#endif
 #endif

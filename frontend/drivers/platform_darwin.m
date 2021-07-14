@@ -44,6 +44,7 @@
 #include <sys/sysctl.h>
 #elif defined(IOS)
 #include <UIKit/UIDevice.h>
+#include <sys/sysctl.h>
 #endif
 
 #include <boolean.h>
@@ -402,20 +403,12 @@ static void frontend_darwin_get_env(int *argc, char *argv[],
          home_dir_buf, "shaders_glsl",
          sizeof(g_defaults.dirs[DEFAULT_DIR_SHADER]));
 #endif
-#if TARGET_OS_IOS
-    int major, minor;
-    get_ios_version(&major, &minor);
-    if (major >= 10 )
-        fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_CORE],
-              bundle_path_buf, "modules", sizeof(g_defaults.dirs[DEFAULT_DIR_CORE]));
-    else
-        fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_CORE],
-              home_dir_buf, "cores", sizeof(g_defaults.dirs[DEFAULT_DIR_CORE]));
-#elif TARGET_OS_TV
+#ifdef HAVE_UPDATE_CORES
     fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_CORE],
-                       bundle_path_buf, "modules", sizeof(g_defaults.dirs[DEFAULT_DIR_CORE]));
+		    home_dir_buf, "cores", sizeof(g_defaults.dirs[DEFAULT_DIR_CORE]));
 #else
-   fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_CORE], home_dir_buf, "cores", sizeof(g_defaults.dirs[DEFAULT_DIR_CORE]));
+    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_CORE],
+		    bundle_path_buf, "modules", sizeof(g_defaults.dirs[DEFAULT_DIR_CORE]));
 #endif
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_CORE_INFO], home_dir_buf, "info", sizeof(g_defaults.dirs[DEFAULT_DIR_CORE_INFO]));
    fill_pathname_join(g_defaults.dirs[DEFAULT_DIR_OVERLAY], home_dir_buf, "overlays", sizeof(g_defaults.dirs[DEFAULT_DIR_OVERLAY]));
@@ -478,8 +471,12 @@ static void frontend_darwin_get_env(int *argc, char *argv[],
 
     char assets_zip_path[PATH_MAX_LENGTH];
 #if TARGET_OS_IOS
-    if (major > 8)
-       strcpy_literal(g_defaults.path_buildbot_server_url, "http://buildbot.libretro.com/nightly/apple/ios9/latest/");
+    {
+       int major, minor;
+       get_ios_version(&major, &minor);
+       if (major > 8)
+          strcpy_literal(g_defaults.path_buildbot_server_url, "http://buildbot.libretro.com/nightly/apple/ios9/latest/");
+    }
 #endif
 
 #if TARGET_OS_IOS
@@ -730,14 +727,24 @@ end:
    return ret;
 }
 
+#ifndef OSX
+#ifndef CPU_ARCH_ABI64
+#define CPU_ARCH_ABI64          0x01000000
+#endif
+
+#ifndef CPU_TYPE_ARM64
+#define CPU_TYPE_ARM64          (CPU_TYPE_ARM | CPU_ARCH_ABI64)
+#endif
+#endif
+
 static enum frontend_architecture frontend_darwin_get_arch(void)
 {
-   struct utsname buffer;
-
-   if (uname(&buffer) != 0)
-      return FRONTEND_ARCH_NONE;
-
 #ifdef OSX
+    struct utsname buffer;
+
+    if (uname(&buffer) != 0)
+       return FRONTEND_ARCH_NONE;
+    
    if (string_is_equal(buffer.machine, "x86_64"))
       return FRONTEND_ARCH_X86_64;
    if (string_is_equal(buffer.machine, "x86"))
@@ -746,12 +753,22 @@ static enum frontend_architecture frontend_darwin_get_arch(void)
       return FRONTEND_ARCH_PPC;
    if (string_is_equal(buffer.machine, "arm64"))
       return FRONTEND_ARCH_ARMV8;
-
-   return FRONTEND_ARCH_NONE;
 #else
-   /* TODO/FIXME - make this more flexible */
-   return FRONTEND_ARCH_ARMV7;
+   cpu_type_t type;
+   size_t size = sizeof(type);
+
+   sysctlbyname("hw.cputype", &type, &size, NULL, 0);
+    
+   if (type == CPU_TYPE_X86_64)
+      return FRONTEND_ARCH_X86_64;
+   else if (type == CPU_TYPE_X86)
+      return FRONTEND_ARCH_X86;
+   else if (type == CPU_TYPE_ARM64)
+      return FRONTEND_ARCH_ARMV8;
+   else if (type == CPU_TYPE_ARM)
+      return FRONTEND_ARCH_ARMV7;
 #endif
+    return FRONTEND_ARCH_NONE;
 }
 
 static int frontend_darwin_parse_drive_list(void *data, bool load_content)

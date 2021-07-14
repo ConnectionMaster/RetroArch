@@ -180,7 +180,9 @@ GENERIC_DEFERRED_PUSH(deferred_push_cheat_search_settings_list,     DISPLAYLIST_
 GENERIC_DEFERRED_PUSH(deferred_push_onscreen_display_settings_list, DISPLAYLIST_ONSCREEN_DISPLAY_SETTINGS_LIST)
 GENERIC_DEFERRED_PUSH(deferred_push_onscreen_notifications_settings_list, DISPLAYLIST_ONSCREEN_NOTIFICATIONS_SETTINGS_LIST)
 GENERIC_DEFERRED_PUSH(deferred_push_onscreen_notifications_views_settings_list, DISPLAYLIST_ONSCREEN_NOTIFICATIONS_VIEWS_SETTINGS_LIST)
+#if defined(HAVE_OVERLAY)
 GENERIC_DEFERRED_PUSH(deferred_push_onscreen_overlay_settings_list, DISPLAYLIST_ONSCREEN_OVERLAY_SETTINGS_LIST)
+#endif
 #ifdef HAVE_VIDEO_LAYOUT
 GENERIC_DEFERRED_PUSH(deferred_push_onscreen_video_layout_settings_list, DISPLAYLIST_ONSCREEN_VIDEO_LAYOUT_SETTINGS_LIST)
 #endif
@@ -211,9 +213,10 @@ GENERIC_DEFERRED_PUSH(deferred_push_audio_synchronization_settings_list,        
 GENERIC_DEFERRED_PUSH(deferred_push_audio_mixer_settings_list,      DISPLAYLIST_AUDIO_MIXER_SETTINGS_LIST)
 GENERIC_DEFERRED_PUSH(deferred_push_input_settings_list,            DISPLAYLIST_INPUT_SETTINGS_LIST)
 GENERIC_DEFERRED_PUSH(deferred_push_input_menu_settings_list,            DISPLAYLIST_INPUT_MENU_SETTINGS_LIST)
-GENERIC_DEFERRED_PUSH(deferred_push_input_haptic_feedback_settings_list,            DISPLAYLIST_INPUT_HAPTIC_FEEDBACK_SETTINGS_LIST)
+GENERIC_DEFERRED_PUSH(deferred_push_input_turbo_fire_settings_list,      DISPLAYLIST_INPUT_TURBO_FIRE_SETTINGS_LIST)
+GENERIC_DEFERRED_PUSH(deferred_push_input_haptic_feedback_settings_list, DISPLAYLIST_INPUT_HAPTIC_FEEDBACK_SETTINGS_LIST)
 GENERIC_DEFERRED_PUSH(deferred_push_ai_service_settings_list,            DISPLAYLIST_AI_SERVICE_SETTINGS_LIST)
-GENERIC_DEFERRED_PUSH(deferred_push_accessibility_settings_list,            DISPLAYLIST_ACCESSIBILITY_SETTINGS_LIST)
+GENERIC_DEFERRED_PUSH(deferred_push_accessibility_settings_list,         DISPLAYLIST_ACCESSIBILITY_SETTINGS_LIST)
 GENERIC_DEFERRED_PUSH(deferred_push_latency_settings_list,          DISPLAYLIST_LATENCY_SETTINGS_LIST)
 GENERIC_DEFERRED_PUSH(deferred_push_recording_settings_list,        DISPLAYLIST_RECORDING_SETTINGS_LIST)
 GENERIC_DEFERRED_PUSH(deferred_push_playlist_settings_list,         DISPLAYLIST_PLAYLIST_SETTINGS_LIST)
@@ -250,6 +253,11 @@ GENERIC_DEFERRED_PUSH(deferred_push_switch_cpu_profile,             DISPLAYLIST_
 GENERIC_DEFERRED_PUSH(deferred_push_switch_gpu_profile,             DISPLAYLIST_SWITCH_GPU_PROFILE)
 #endif
 
+#if defined(HAVE_LAKKA)
+GENERIC_DEFERRED_PUSH(deferred_push_cpu_perfpower,                  DISPLAYLIST_CPU_PERFPOWER_LIST)
+GENERIC_DEFERRED_PUSH(deferred_push_cpu_policy,                     DISPLAYLIST_CPU_POLICY_LIST)
+#endif
+
 GENERIC_DEFERRED_PUSH(deferred_push_manual_content_scan_list,       DISPLAYLIST_MANUAL_CONTENT_SCAN_LIST)
 GENERIC_DEFERRED_PUSH(deferred_push_manual_content_scan_dat_file,   DISPLAYLIST_MANUAL_CONTENT_SCAN_DAT_FILES)
 
@@ -274,11 +282,14 @@ static int deferred_push_cursor_manager_list_deferred(
    
    if (!(conf = config_file_new_from_path_to_string(path)))
       return -1;
+   
+   query_entry                    = config_get_entry(conf, "query");
+   rdb_entry                      = config_get_entry(conf, "rdb");
 
    if (     
-            !(query_entry  = config_get_entry(conf, "query"))
+            !query_entry
          ||  (string_is_empty(query_entry->value))
-         || !(rdb_entry    = config_get_entry(conf, "rdb"))
+         || !rdb_entry
          ||  (string_is_empty(rdb_entry->value))
       )
    {
@@ -286,15 +297,14 @@ static int deferred_push_cursor_manager_list_deferred(
       return -1;
    }
 
-   config_file_free(conf);
-
    rdb_path[0] = '\0';
 
    settings = config_get_ptr();
+   
    fill_pathname_join(rdb_path,
          settings->paths.path_content_database,
          rdb_entry->value, sizeof(rdb_path));
-
+   
    if (!string_is_empty(info->path_b))
       free(info->path_b);
 
@@ -308,6 +318,8 @@ static int deferred_push_cursor_manager_list_deferred(
 
    info->path_c    = strdup(query_entry->value);
    info->path      = strdup(rdb_path);
+   
+   config_file_free(conf);
 
    return deferred_push_dlist(info, DISPLAYLIST_DATABASE_QUERY, settings);
 }
@@ -696,7 +708,9 @@ static int menu_cbs_init_bind_deferred_push_compare_label(
       {MENU_ENUM_LABEL_DEFERRED_ONSCREEN_DISPLAY_SETTINGS_LIST, deferred_push_onscreen_display_settings_list},
       {MENU_ENUM_LABEL_DEFERRED_ONSCREEN_NOTIFICATIONS_SETTINGS_LIST, deferred_push_onscreen_notifications_settings_list},
       {MENU_ENUM_LABEL_DEFERRED_ONSCREEN_NOTIFICATIONS_VIEWS_SETTINGS_LIST, deferred_push_onscreen_notifications_views_settings_list},
+#if defined(HAVE_OVERLAY)
       {MENU_ENUM_LABEL_DEFERRED_ONSCREEN_OVERLAY_SETTINGS_LIST, deferred_push_onscreen_overlay_settings_list},
+#endif
 #ifdef HAVE_VIDEO_LAYOUT
       {MENU_ENUM_LABEL_DEFERRED_ONSCREEN_VIDEO_LAYOUT_SETTINGS_LIST, deferred_push_onscreen_video_layout_settings_list},
 #endif
@@ -737,6 +751,7 @@ static int menu_cbs_init_bind_deferred_push_compare_label(
       {MENU_ENUM_LABEL_DEFERRED_EXPLORE_LIST, deferred_explore_list},
       {MENU_ENUM_LABEL_DEFERRED_INPUT_SETTINGS_LIST, deferred_push_input_settings_list},
       {MENU_ENUM_LABEL_DEFERRED_INPUT_MENU_SETTINGS_LIST, deferred_push_input_menu_settings_list},
+      {MENU_ENUM_LABEL_DEFERRED_INPUT_TURBO_FIRE_SETTINGS_LIST, deferred_push_input_turbo_fire_settings_list},
       {MENU_ENUM_LABEL_DEFERRED_INPUT_HAPTIC_FEEDBACK_SETTINGS_LIST, deferred_push_input_haptic_feedback_settings_list},
       {MENU_ENUM_LABEL_DEFERRED_AI_SERVICE_SETTINGS_LIST, deferred_push_ai_service_settings_list},
       {MENU_ENUM_LABEL_DEFERRED_ACCESSIBILITY_SETTINGS_LIST, deferred_push_accessibility_settings_list},
@@ -763,6 +778,10 @@ static int menu_cbs_init_bind_deferred_push_compare_label(
 #endif
 #if defined(HAVE_LAKKA_SWITCH) || defined(HAVE_LIBNX)
       {MENU_ENUM_LABEL_SWITCH_CPU_PROFILE, deferred_push_switch_cpu_profile},
+#endif
+#if defined(HAVE_LAKKA)
+      {MENU_ENUM_LABEL_DEFERRED_CPU_PERFPOWER_LIST, deferred_push_cpu_perfpower},
+      {MENU_ENUM_LABEL_DEFERRED_CPU_POLICY_ENTRY, deferred_push_cpu_policy},
 #endif
       {MENU_ENUM_LABEL_DEFERRED_REMAPPINGS_PORT_LIST, deferred_push_remappings_port },
       {MENU_ENUM_LABEL_DEFERRED_ACCOUNTS_LIST, deferred_push_accounts_list},
@@ -1217,9 +1236,11 @@ static int menu_cbs_init_bind_deferred_push_compare_label(
          case MENU_ENUM_LABEL_DEFERRED_ONSCREEN_DISPLAY_SETTINGS_LIST:
             BIND_ACTION_DEFERRED_PUSH(cbs, deferred_push_onscreen_display_settings_list);
             break;
+#if defined(HAVE_OVERLAY)
          case MENU_ENUM_LABEL_DEFERRED_ONSCREEN_OVERLAY_SETTINGS_LIST:
             BIND_ACTION_DEFERRED_PUSH(cbs, deferred_push_onscreen_overlay_settings_list);
             break;
+#endif
 #ifdef HAVE_VIDEO_LAYOUT
          case MENU_ENUM_LABEL_DEFERRED_ONSCREEN_VIDEO_LAYOUT_SETTINGS_LIST:
             BIND_ACTION_DEFERRED_PUSH(cbs, deferred_push_onscreen_video_layout_settings_list);

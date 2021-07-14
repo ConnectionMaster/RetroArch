@@ -123,15 +123,12 @@ enum rarch_ctl_state
 
    RARCH_CTL_IS_REMAPS_CORE_ACTIVE,
    RARCH_CTL_SET_REMAPS_CORE_ACTIVE,
-   RARCH_CTL_UNSET_REMAPS_CORE_ACTIVE,
 
    RARCH_CTL_IS_REMAPS_CONTENT_DIR_ACTIVE,
    RARCH_CTL_SET_REMAPS_CONTENT_DIR_ACTIVE,
-   RARCH_CTL_UNSET_REMAPS_CONTENT_DIR_ACTIVE,
 
    RARCH_CTL_IS_REMAPS_GAME_ACTIVE,
    RARCH_CTL_SET_REMAPS_GAME_ACTIVE,
-   RARCH_CTL_UNSET_REMAPS_GAME_ACTIVE,
 #endif
 
    RARCH_CTL_IS_MISSING_BIOS,
@@ -288,6 +285,11 @@ typedef struct global
       bool softfilter_enable;
 
    } console;
+   unsigned old_analog_dpad_mode[MAX_USERS];
+   unsigned old_libretro_device[MAX_USERS];
+   bool old_analog_dpad_mode_set;
+   bool old_libretro_device_set;
+   bool remapping_cache_active;
    /* Settings and/or global states specific to menus */
 #ifdef HAVE_MENU
    enum menu_action menu_prev_action;
@@ -296,10 +298,43 @@ typedef struct global
    bool cli_load_menu_on_error;
 } global_t;
 
+typedef struct content_file_override
+{
+   char *ext;
+   bool need_fullpath;
+   bool persistent_data;
+} content_file_override_t;
+
+typedef struct content_file_info
+{
+   char *full_path;
+   char *archive_path;
+   char *archive_file;
+   char *dir;
+   char *name;
+   char *ext;
+   char *meta; /* Unused at present */
+   void *data;
+   size_t data_size;
+   bool file_in_archive;
+   bool persistent_data;
+} content_file_info_t;
+
+typedef struct content_file_list
+{
+   content_file_info_t *entries;
+   struct string_list *temporary_files;
+   struct retro_game_info *game_info;
+   struct retro_game_info_ext *game_info_ext;
+   size_t size;
+} content_file_list_t;
+
 typedef struct content_state
 {
    char *pending_subsystem_roms[RARCH_MAX_SUBSYSTEM_ROMS];
-   struct string_list *temporary_content;
+
+   content_file_override_t *content_override_list;
+   content_file_list_t *content_list;
 
    int pending_subsystem_rom_num;
    int pending_subsystem_id;
@@ -804,7 +839,8 @@ enum gfx_ctx_api
    GFX_CTX_DIRECT3D12_API,
    GFX_CTX_OPENVG_API,
    GFX_CTX_VULKAN_API,
-   GFX_CTX_METAL_API
+   GFX_CTX_METAL_API,
+   GFX_CTX_RSX_API
 };
 
 enum display_metric_types
@@ -1115,6 +1151,8 @@ typedef struct video_info
 typedef struct video_frame_info
 {
    void *userdata;
+   void *widgets_userdata;
+   void *disp_userdata;
 
    int custom_vp_x;
    int custom_vp_y;
@@ -1139,6 +1177,8 @@ typedef struct video_frame_info
    unsigned custom_vp_full_width;
    unsigned custom_vp_full_height;
    unsigned black_frame_insertion;
+   unsigned fps_update_interval;
+   unsigned memory_update_interval;
 
    float menu_wallpaper_opacity;
    float menu_framebuffer_opacity;
@@ -1199,7 +1239,10 @@ typedef struct video_frame_info
    bool runloop_is_slowmotion;
    bool runloop_is_paused;
    bool menu_is_alive;
+   bool menu_screensaver_active;
    bool msg_bgcolor_enable;
+   bool crt_switch_hires_menu;
+
 } video_frame_info_t;
 
 typedef void (*update_window_title_cb)(void*);
@@ -1525,6 +1568,8 @@ bool video_driver_supports_read_frame_raw(void);
 
 void video_driver_set_viewport_core(void);
 
+void video_driver_set_viewport_full(void);
+
 void video_driver_reset_custom_viewport(void);
 
 void video_driver_set_rgba(void);
@@ -1678,7 +1723,9 @@ void video_monitor_set_refresh_rate(float hz);
 bool video_monitor_fps_statistics(double *refresh_rate,
       double *deviation, unsigned *sample_points);
 
-void crt_switch_driver_reinit(void);
+void crt_switch_driver_refresh(void);
+
+char* crt_switch_core_name(void);
 
 #define video_driver_translate_coord_viewport_wrap(vp, mouse_x, mouse_y, res_x, res_y, res_screen_x, res_screen_y) \
    (video_driver_get_viewport_info(vp) ? video_driver_translate_coord_viewport(vp, mouse_x, mouse_y, res_x, res_y, res_screen_x, res_screen_y) : false)
@@ -1804,23 +1851,6 @@ void video_driver_set_gpu_api_devices(enum gfx_ctx_api api, struct string_list *
 
 struct string_list* video_driver_get_gpu_api_devices(enum gfx_ctx_api api);
 
-static INLINE bool gl_set_core_context(enum retro_hw_context_type ctx_type)
-{
-   gfx_ctx_flags_t flags;
-   if (ctx_type != RETRO_HW_CONTEXT_OPENGL_CORE)
-      return false;
-
-   /**
-    * Ensure that the rest of the frontend knows we have a core context
-    */
-   flags.flags = 0;
-   BIT32_SET(flags.flags, GFX_CTX_FLAGS_GL_CORE_CONTEXT);
-
-   video_context_driver_set_flags(&flags);
-
-   return true;
-}
-
 extern video_driver_t video_gl_core;
 extern video_driver_t video_gl2;
 extern video_driver_t video_gl1;
@@ -1844,6 +1874,7 @@ extern video_driver_t video_xvideo;
 extern video_driver_t video_sdl;
 extern video_driver_t video_sdl2;
 extern video_driver_t video_sdl_dingux;
+extern video_driver_t video_sdl_rs90;
 extern video_driver_t video_vg;
 extern video_driver_t video_omap;
 extern video_driver_t video_exynos;
@@ -1880,6 +1911,7 @@ extern const gfx_ctx_driver_t gfx_ctx_videocore;
 extern const gfx_ctx_driver_t gfx_ctx_qnx;
 extern const gfx_ctx_driver_t gfx_ctx_cgl;
 extern const gfx_ctx_driver_t gfx_ctx_cocoagl;
+extern const gfx_ctx_driver_t gfx_ctx_cocoavk;
 extern const gfx_ctx_driver_t gfx_ctx_emscripten;
 extern const gfx_ctx_driver_t gfx_ctx_opendingux_fbdev;
 extern const gfx_ctx_driver_t gfx_ctx_khr_display;

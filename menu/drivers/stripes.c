@@ -286,6 +286,9 @@ typedef struct stripes_handle
    font_data_t *font2;
    video_font_raster_block_t raster_block;
    video_font_raster_block_t raster_block2;
+
+   void (*word_wrap)(char *dst, size_t dst_size, const char *src,
+      int line_width, int wideglyph_width, unsigned max_lines);
 } stripes_handle_t;
 
 float stripes_scale_mod[8] = {
@@ -801,6 +804,7 @@ static void stripes_render_messagebox_internal(
 
    if (menu_input_dialog_get_display_kb())
       gfx_display_draw_keyboard(
+            p_disp,
             userdata,
             video_width,
             video_height,
@@ -2405,7 +2409,8 @@ static int stripes_draw_item(
 
       label_offset      = - stripes->margins_label_top;
 
-      word_wrap(entry_sublabel, entry->sublabel, 50 * stripes_scale_mod[3], true, 0);
+      (stripes->word_wrap)(entry_sublabel, sizeof(entry_sublabel),
+            entry->sublabel, 50 * stripes_scale_mod[3], 100, 0);
 
       stripes_draw_text(xmb_shadows_enable, stripes, entry_sublabel,
             node->x + stripes->margins_screen_left +
@@ -2468,7 +2473,7 @@ static int stripes_draw_item(
       rotate_draw.scale_z      = 1;
       rotate_draw.scale_enable = true;
 
-      gfx_display_rotate_z(&rotate_draw, userdata);
+      gfx_display_rotate_z(p_disp, &rotate_draw, userdata);
 
       stripes_draw_icon(
             userdata,
@@ -2555,7 +2560,7 @@ static void stripes_draw_items(
    rotate_draw.scale_z      = 1;
    rotate_draw.scale_enable = true;
 
-   gfx_display_rotate_z(&rotate_draw, userdata);
+   gfx_display_rotate_z(p_disp, &rotate_draw, userdata);
 
    menu_entries_ctl(MENU_ENTRIES_CTL_START_GET, &i);
 
@@ -2828,7 +2833,7 @@ static void stripes_frame(void *data, video_frame_info_t *video_info)
    rotate_draw.scale_z      = 1;
    rotate_draw.scale_enable = true;
 
-   gfx_display_rotate_z(&rotate_draw, userdata);
+   gfx_display_rotate_z(p_disp, &rotate_draw, userdata);
    if (dispctx && dispctx->blend_begin)
       dispctx->blend_begin(userdata);
 
@@ -2862,6 +2867,7 @@ static void stripes_frame(void *data, video_frame_info_t *video_info)
       color[15]       = 0.55;
 
       gfx_display_draw_polygon(
+            p_disp,
             userdata,
             video_width,
             video_height,
@@ -2913,7 +2919,7 @@ static void stripes_frame(void *data, video_frame_info_t *video_info)
          rotate_draw.scale_z      = 1;
          rotate_draw.scale_enable = true;
 
-         gfx_display_rotate_z(&rotate_draw, userdata);
+         gfx_display_rotate_z(p_disp, &rotate_draw, userdata);
 
          stripes_draw_icon(
                userdata,
@@ -3028,6 +3034,7 @@ static void stripes_frame(void *data, video_frame_info_t *video_info)
 
       if (cursor_visible)
          gfx_display_draw_cursor(
+               p_disp,
                userdata,
                video_width,
                video_height,
@@ -3371,6 +3378,9 @@ static void *stripes_init(void **userdata, bool video_is_threaded)
    file_list_initialize(&stripes->horizontal_list);
    stripes_init_horizontal_list(stripes);
 
+   /* set word_wrap function pointer */
+   stripes->word_wrap = msg_hash_get_wideglyph_str() ? word_wrap_wideglyph : word_wrap;
+
    return menu;
 
 error:
@@ -3713,10 +3723,10 @@ static void stripes_context_reset(void *data, bool is_threaded)
             APPLICATION_SPECIAL_DIRECTORY_ASSETS_XMB_ICONS);
 
       stripes_layout(stripes);
-      stripes->font = gfx_display_font(APPLICATION_SPECIAL_DIRECTORY_ASSETS_XMB_FONT,
+      stripes->font = gfx_display_font(p_disp, APPLICATION_SPECIAL_DIRECTORY_ASSETS_XMB_FONT,
             stripes->font_size,
             is_threaded);
-      stripes->font2 = gfx_display_font(APPLICATION_SPECIAL_DIRECTORY_ASSETS_XMB_FONT,
+      stripes->font2 = gfx_display_font(p_disp, APPLICATION_SPECIAL_DIRECTORY_ASSETS_XMB_FONT,
             stripes->font2_size,
             is_threaded);
       stripes_context_reset_textures(stripes, iconpath);
@@ -4141,7 +4151,7 @@ static int stripes_list_push(void *data, void *userdata,
                   MENU_SETTING_ACTION_FAVORITES_DIR, 0, 0);
 
             core_info_get_list(&list);
-            if (core_info_list_num_info_files(list))
+            if (list->info_count > 0)
             {
                menu_entries_append_enum(info->list,
                      msg_hash_to_str(MENU_ENUM_LABEL_VALUE_DOWNLOADED_FILE_DETECT_CORE_LIST),
