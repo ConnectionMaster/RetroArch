@@ -492,6 +492,10 @@ MSG_HASH(
    "Benötigte Grafik-API"
    )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CORE_INFO_CORE_PATH,
+   "Vollständiger Pfad des Cores"
+)
+MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CORE_INFO_SAVESTATE_SUPPORT_LEVEL,
    "Savestate-Unterstützung"
    )
@@ -1157,9 +1161,25 @@ MSG_HASH(
    "Destruktive Cloud-Synchronisation"
    )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CLOUD_SYNC_SYNC_SAVES,
+   "Synchronisieren: Speicherdaten/Savestates"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CLOUD_SYNC_SYNC_CONFIGS,
+   "Synchronisieren: Konfigurationsdateien"
+   )      
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_CLOUD_SYNC_SYNC_SAVES,
+   "Wenn aktiviert, werden Speicherdaten/Savestates mit der Cloud synchronisiert."
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_CLOUD_SYNC_SYNC_CONFIGS,
+   "Wenn aktiviert, werden Konfigurationsdateien mit der Cloud synchronisiert."
+   )
+MSG_HASH(
    MENU_ENUM_SUBLABEL_CLOUD_SYNC_DESTRUCTIVE,
    "Wenn deaktiviert, werden die Dateien in einen Sicherungsordner verschoben, bevor sie überschrieben oder gelöscht werden."
-   )
+   )      
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CLOUD_SYNC_DRIVER,
    "Cloud-Sync-Backend"
@@ -1831,10 +1851,6 @@ MSG_HASH(
    "Fügt Schwarzbild(er) zwischen Frames für verbesserte Bewegungsschärfe ein. Nur die Option benutzen, die für die aktuelle Aktualisierungsrate bestimmt ist. Nicht für die Verwendung bei Aktualisierungsraten mit nicht multiplen 60 Hz wie 144 Hz, 165Hz, usw. Nicht kombinieren mit Swap-Intervall > 1, Unterbilder, Bildverzögerung oder mit exakter Inhaltssignalfrequenz synchronisieren. System-VRR eingeschaltet lassen ist ok, nur nicht diese Einstellung. Wenn -irgendein- temporäres Bild-Nachleuch[...]"
    )
 MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_VIDEO_BLACK_FRAME_INSERTION_VALUE_OFF,
-   "Aus"
-   )
-MSG_HASH(
    MENU_ENUM_LABEL_VALUE_VIDEO_BLACK_FRAME_INSERTION_VALUE_120,
    "1 - Für eine Bildwiederholfrequenz von 120 Hz"
    )
@@ -1919,10 +1935,6 @@ MSG_HASH(
    "Fügt zusätzlich Shader-Bild(er) zwischen Frames für alle möglichen Shader-Effekte ein, die darauf ausgelegt sind, schneller als die Inhaltsrate zu laufen. Nur die Option benutzen, die für die aktuelle Aktualisierungsrate bestimmt ist. Nicht für die Verwendung bei Aktualisierungsraten mit nicht multiplen 60 Hz wie 144 Hz, 165Hz, usw. Nicht kombinieren mit Swap-Intervall > 1, Schwarzbilder, Bildverzögerung oder mit exakter Inhaltssignalfrequenz synchronisieren. System-VRR eingeschaltet lass[...]"
    )
 MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_VIDEO_SHADER_SUBFRAMES_VALUE_OFF,
-   "Aus"
-   )
-MSG_HASH(
    MENU_ENUM_LABEL_VALUE_VIDEO_SHADER_SUBFRAMES_VALUE_120,
    "2 - Für eine Bildwiederholfrequenz von 120 Hz"
    )
@@ -1992,11 +2004,11 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_VIDEO_SCAN_SUBFRAMES,
-   "Simuliert eine einfache rollende Scanline über mehrere Unterbilder, indem der Bildschirm vertikal aufgeteilt wird und jeder Teil des Bildschirms entsprechend der Anzahl der Unterbilder dargestellt wird"
+   "Simuliert eine einfache rollende Scanline über mehrere Unterbilder, indem der Bildschirm vertikal aufgeteilt wird und jeder Teil des Bildschirms entsprechend der Anzahl der Unterbilder dargestellt wird."
    )
 MSG_HASH(
    MENU_ENUM_LABEL_HELP_VIDEO_SCAN_SUBFRAMES,
-   "Simuliert eine einfache rollende Scanline über mehrere Unterbilder, indem der Bildschirm vertikal aufgeteilt wird und jeder Teil des Bildschirms entsprechend der Anzahl der Unterbilder vom oberen Bildschirmrand nach unten gerendert wird"
+   "Simuliert eine einfache rollende Scanline über mehrere Unterbilder, indem der Bildschirm vertikal aufgeteilt wird und jeder Teil des Bildschirms entsprechend der Anzahl der Unterbilder vom oberen Bildschirmrand nach unten gerendert wird."
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_VIDEO_GPU_SCREENSHOT,
@@ -2471,6 +2483,24 @@ MSG_HASH(
    MENU_ENUM_SUBLABEL_VIDEO_VIEWPORT_CUSTOM_Y,
    "Benutzerdefinierter Versatz des Ansichtsfensters, welcher die Y-Achsenposition definiert.\nDieser wird ignoriert, wenn \"Ganzzahlige Skalierung\" aktiviert ist."
    )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_VIDEO_VIEWPORT_BIAS_X, 
+   "Benutzerdefinierte Ausrichtung des Ansichtsfensters wird verwendet, um das Ansichtsfenster horizontal zu versetzen (wenn es breiter als die Inhaltshöhe ist).  0.0 bedeutet ganz links und 1.0 bedeutet ganz rechts."
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_VIDEO_VIEWPORT_BIAS_Y, 
+   "Benutzerdefinierte Ausrichtung des Ansichtsfensters wird verwendet, um das Ansichtsfenster vertikal zu versetzen (wenn es höher als die Inhaltshöhe ist).  0.0 bedeutet oben und 1.0 bedeutet unten."
+   )
+#if defined(RARCH_MOBILE)
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_VIDEO_VIEWPORT_BIAS_PORTRAIT_X, 
+   "Benutzerdefinierte Ausrichtung des Ansichtsfensters wird verwendet, um das Ansichtsfenster horizontal zu versetzen (wenn es breiter als die Inhaltshöhe ist).  0.0 bedeutet ganz links und 1.0 bedeutet ganz rechts. (Hochformat)"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_VIDEO_VIEWPORT_BIAS_PORTRAIT_Y, 
+   "Benutzerdefinierte Ausrichtung des Ansichtsfensters wird verwendet, um das Ansichtsfenster vertikal zu versetzen (wenn es höher als die Inhaltshöhe ist).  0.0 bedeutet oben und 1.0 bedeutet unten. (Hochformat)"
+   )
+#endif
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_VIDEO_VIEWPORT_CUSTOM_WIDTH,
    "Bildbreite"
@@ -3964,6 +3994,34 @@ MSG_HASH(
 MSG_HASH(
    MENU_ENUM_SUBLABEL_INPUT_DEVICE_INDEX,
    "Der physische Controller, wie von RetroArch erkannt."
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_INPUT_DEVICE_RESERVED_DEVICE_NAME,
+   "Reserviertes Gerät für diesen Spieler"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_INPUT_DEVICE_RESERVED_DEVICE_NAME,
+   "Dieser Controller wird diesem Spieler entsprechend dem Reservierungsmodus zugewiesen."
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_DEVICE_RESERVATION_NONE,
+   "Keine Reservierung"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_DEVICE_RESERVATION_PREFERRED,
+   "Bevorzugt"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_DEVICE_RESERVATION_RESERVED,
+   "Reserviert"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_INPUT_DEVICE_RESERVATION_TYPE,
+   "Gerätereservierungstyp"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_INPUT_DEVICE_RESERVATION_TYPE,
+   "Bevorzugt: Wenn das angegebene Gerät vorhanden ist, wird es diesem Spieler zugewiesen.Reserviert: Diesem Spieler wird kein anderer Controller zugewiesen."
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_INPUT_REMAP_PORT,
@@ -6451,6 +6509,14 @@ MSG_HASH(
    "Die Option \"Zu Favoriten hinzufügen\" anzeigen."
    )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_QUICK_MENU_SHOW_ADD_TO_PLAYLIST,
+   "„Zur Wiedergabeliste hinzufügen“ anzeigen"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_QUICK_MENU_SHOW_ADD_TO_PLAYLIST,
+   "Die Option „Zur Wiedergabeliste hinzufügen“ anzeigen."
+   )
+MSG_HASH(
    MENU_ENUM_LABEL_VALUE_QUICK_MENU_SHOW_SET_CORE_ASSOCIATION,
    "\"Core zuordnen\" anzeigen"
    )
@@ -6782,7 +6848,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_AI_SERVICE_MODE,
-   "Übersetzung als Bild-Overlay (Bildmodus), als direktes Audio (Sprache), Text-to-Speech (Erzähler) oder als Text-Overlay (Text) anzeigen."
+   "Übersetzung als Text-Overlay (Bildmodus), als Text-To-Speech (Sprachmodus) abspielen oder einen System-Erzähler wie NVDA (Erzählermodus) verwenden."
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_AI_SERVICE_URL,
@@ -6823,30 +6889,6 @@ MSG_HASH(
 MSG_HASH(
    MENU_ENUM_SUBLABEL_AI_SERVICE_TARGET_LANG,
    "Die Sprache, in die der Dienst übersetzt. 'Standard' ist Englisch."
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_POLL_DELAY,
-   "Automatische Abfrageverzögerung für KI-Dienst"
-   )
-MSG_HASH(
-   MENU_ENUM_SUBLABEL_AI_SERVICE_POLL_DELAY,
-   "Mindestverzögerung in ms zwischen automatischen Aufrufen. Verringert die Reaktionszeit, erhöht aber die CPU-Leistung."
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_POSITION,
-   "KI-Dienst-Textposition überschreiben"
-   )
-MSG_HASH(
-   MENU_ENUM_SUBLABEL_AI_SERVICE_TEXT_POSITION,
-   "Die Position des Overlays übersteuern, wenn sich der Dienst im Textmodus befindet."
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_PADDING,
-   "KI-Dienst-Textauffüllung (%)"
-   )
-MSG_HASH(
-   MENU_ENUM_SUBLABEL_AI_SERVICE_TEXT_PADDING,
-   "Vertikaler Abstand, der auf das Textoverlay angewendet wird, wenn der Dienst im Textmodus ist. Ein größeres Auffüllen schiebt den Text in die Mitte des Bildschirms."
    )
 
 /* Settings > Accessibility */
@@ -7645,11 +7687,11 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_PLAYLIST_USE_FILENAME,
-   "Dateinamen zur Thumbnail-Zuordnung verwenden"
+   "Dateinamen zur Miniaturansichten Zuordnung verwenden"
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_PLAYLIST_USE_FILENAME,
-   "Wenn aktiviert, werden Thumbnails anhand des Dateinamens des Eintrags und nicht anhand seines Labels gefunden."
+   "Wenn aktiviert, werden Miniaturansichten anhand des Dateinamens des Eintrags und nicht anhand seines Labels gefunden."
    )
    MSG_HASH(
    MENU_ENUM_LABEL_VALUE_MANAGE,
@@ -8583,6 +8625,22 @@ MSG_HASH(
    "Den Inhalt zu 'Favoriten' hinzufügen."
    )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_ADD_TO_PLAYLIST,
+   "Zur Wiedergabeliste hinzufügen"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_ADD_TO_PLAYLIST,
+   "Den Inhalt einer Wiedergabeliste hinzufügen."
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CREATE_NEW_PLAYLIST,
+   "Neue Wiedergabeliste erstellen"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_CREATE_NEW_PLAYLIST,
+   "Eine neue Wiedergabeliste erstellen und dieser den aktuellen Eintrag hinzufügen."
+   )
+MSG_HASH(
    MENU_ENUM_LABEL_VALUE_SET_CORE_ASSOCIATION,
    "Core zuordnen"
    )
@@ -9447,7 +9505,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_VIDEO_SHADER_PRESET_PREPEND,
-   "Voreinstellung vor aktuell gelandende Voreinstellungen stellen."
+   "Voreinstellung vor aktuell geladene Voreinstellung stellen."
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_VIDEO_SHADER_PRESET_APPEND,
@@ -9455,7 +9513,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_VIDEO_SHADER_PRESET_APPEND,
-   "Voreinstellung hinter aktuell gelandende Voreinstellungen hängen."
+   "Voreinstellung hinter aktuell geladene Voreinstellung hängen."
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_VIDEO_SHADER_PRESET_SAVE,
@@ -9759,6 +9817,18 @@ MSG_HASH(
    "Alle ausstehenden Anfragen wurden erfolgreich mit dem RetroAchievements-Server synchronisiert."
 )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CHEEVOS_IDENTIFYING_GAME,
+   "Spiel wird identifiziert"
+)
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CHEEVOS_FETCHING_GAME_DATA,
+   "Spieldaten werden abgerufen"
+)
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CHEEVOS_STARTING_SESSION,
+   "Sitzung wird gestartet"
+)
+MSG_HASH(
    MENU_ENUM_LABEL_VALUE_NOT_LOGGED_IN,
    "Nicht eingeloggt"
 )
@@ -9986,26 +10056,6 @@ MSG_HASH(
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_AI_SERVICE_NARRATOR_MODE,
    "Erzählermodus"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_MODE,
-   "Textmodus"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_NARRATOR_MODE,
-   "Text und Erzähler"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_IMAGE_NARRATOR_MODE,
-   "Bild und Erzähler"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_POSITION_BOTTOM,
-   "Unten"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_POSITION_TOP,
-   "Oben"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_PLAYLIST_ENTRY_REMOVE_ENABLE_HIST_FAV,
@@ -12631,22 +12681,6 @@ MSG_HASH( /* FIXME Should be MSG_ */
    "Core Installation fehlgeschlagen"
    )
 MSG_HASH(
-   MSG_AI_VIDEO_DRIVER_NOT_SUPPORTED,
-   "Videotreiber wird für den KI-Dienst nicht unterstützt."
-   )
-MSG_HASH(
-   MSG_AI_AUTO_MODE_ENABLED,
-   "Automatische Übersetzung aktiviert."
-   )
-MSG_HASH(
-   MSG_AI_AUTO_MODE_DISABLED,
-   "Automatische Übersetzung deaktiviert."
-   )
-MSG_HASH(
-   MSG_AI_NOTHING_TO_TRANSLATE,
-   "Nichts zu übersetzen."
-   )
-MSG_HASH(
    MSG_CHEAT_DELETE_ALL_INSTRUCTIONS,
    "Drücke fünf Mal rechts, um alle Cheats zu löschen."
    )
@@ -13010,6 +13044,14 @@ MSG_HASH(
 MSG_HASH(
    MSG_ADD_TO_FAVORITES_FAILED,
    "Favorit kann nicht hinzugefügt werden: Wiedergabeliste voll"
+   )
+MSG_HASH(
+   MSG_ADDED_TO_PLAYLIST,
+   "Zur Wiedergabeliste hinzugefügt"
+   )
+MSG_HASH(
+   MSG_ADD_TO_PLAYLIST_FAILED,
+   "Fehler beim Hinzufügen zur Playlist: Playlist ist voll"
    )
 MSG_HASH(
    MSG_SET_CORE_ASSOCIATION,
@@ -13858,6 +13900,10 @@ MSG_HASH(
 MSG_HASH(
    MSG_ACHIEVEMENT_UNLOCKED,
    "Errungenschaft freigeschaltet"
+   )
+MSG_HASH(
+   MSG_RARE_ACHIEVEMENT_UNLOCKED,
+   "Seltene Errungenschaft freigeschaltet"
    )
 MSG_HASH(
    MSG_LEADERBOARD_STARTED,

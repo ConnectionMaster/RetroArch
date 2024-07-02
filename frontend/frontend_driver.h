@@ -112,7 +112,7 @@ typedef struct frontend_ctx_driver
    enum retro_language (*get_user_language)(void);
    bool (*is_narrator_running)(void);
    bool (*accessibility_speak)(int speed,
-         const char* speak_text, int priority, const char* voice);
+         const char* speak_text, int priority);
    bool (*set_gamemode)(bool on);
 
    const char *ident;
@@ -177,7 +177,7 @@ void frontend_driver_exitspawn(char *s, size_t len, char *args);
 
 bool frontend_driver_has_fork(void);
 
-bool frontend_driver_get_core_extension(char *s, size_t len);
+size_t frontend_driver_get_core_extension(char *s, size_t len);
 
 bool frontend_driver_get_salamander_basename(char *s, size_t len);
 

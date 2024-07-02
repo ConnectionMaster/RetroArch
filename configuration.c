@@ -70,8 +70,12 @@
 #include "switch_performance_profiles.h"
 #endif
 
-#if TARGET_OS_TV
+#if __APPLE__
 #include "ui/drivers/cocoa/apple_platform.h"
+#endif
+
+#ifdef HAVE_LAKKA
+#include <time.h>
 #endif
 
 enum video_driver_enum
@@ -1471,7 +1475,7 @@ bool config_overlay_enable_default(void)
 {
    if (g_defaults.overlay_set)
       return g_defaults.overlay_enable;
-#if defined(RARCH_MOBILE)
+#if defined(RARCH_MOBILE) && !TARGET_OS_TV
    return true;
 #else
    return false;
@@ -1481,6 +1485,7 @@ bool config_overlay_enable_default(void)
 static struct config_array_setting *populate_settings_array(
       settings_t *settings, int *size)
 {
+   unsigned i                           = 0;
    unsigned count                       = 0;
    struct config_array_setting  *tmp    = (struct config_array_setting*)calloc(1, (*size + 1) * sizeof(struct config_array_setting));
 
@@ -1510,6 +1515,24 @@ static struct config_array_setting *populate_settings_array(
 #ifdef ANDROID
    SETTING_ARRAY("input_android_physical_keyboard", settings->arrays.input_android_physical_keyboard, false, NULL, true);
 #endif
+
+   for (i = 0; i < MAX_USERS; i++)
+   {
+      size_t _len;
+      char formatted_number[4];
+      char prefix[16];
+      char key[32];
+
+      formatted_number[0] = '\0';
+
+      snprintf(formatted_number, sizeof(formatted_number), "%u", i + 1);
+      _len = strlcpy(prefix, "input_player",   sizeof(prefix));
+      strlcpy(prefix + _len, formatted_number, sizeof(prefix) - _len);
+      _len = strlcpy(key, prefix, sizeof(key));
+      strlcpy(key + _len, "_reserved_device", sizeof(key) - _len);
+
+      SETTING_ARRAY(strdup(key), settings->arrays.input_reserved_devices[i], false, NULL, true);
+   }
 
 #ifdef HAVE_MENU
    SETTING_ARRAY("menu_driver",                  settings->arrays.menu_driver, false, NULL, true);
@@ -1746,6 +1769,8 @@ static struct config_bool_setting *populate_settings_bool(
    SETTING_BOOL("location_allow",                &settings->bools.location_allow, true, false, false);
    SETTING_BOOL("cloud_sync_enable",             &settings->bools.cloud_sync_enable, true, false, false);
    SETTING_BOOL("cloud_sync_destructive",        &settings->bools.cloud_sync_destructive, true, false, false);
+   SETTING_BOOL("cloud_sync_sync_saves",         &settings->bools.cloud_sync_sync_saves, true, true, false);
+   SETTING_BOOL("cloud_sync_sync_configs",       &settings->bools.cloud_sync_sync_configs, true, true, false);
    SETTING_BOOL("discord_allow",                 &settings->bools.discord_enable, true, false, false);
 #ifdef HAVE_MIST
    SETTING_BOOL("steam_rich_presence_enable",    &settings->bools.steam_rich_presence_enable, true, false, false);
@@ -1924,6 +1949,7 @@ static struct config_bool_setting *populate_settings_bool(
    SETTING_BOOL("quick_menu_show_take_screenshot",            &settings->bools.quick_menu_show_take_screenshot, true, DEFAULT_QUICK_MENU_SHOW_TAKE_SCREENSHOT, false);
    SETTING_BOOL("quick_menu_show_undo_save_load_state",       &settings->bools.quick_menu_show_undo_save_load_state, true, DEFAULT_QUICK_MENU_SHOW_UNDO_SAVE_LOAD_STATE, false);
    SETTING_BOOL("quick_menu_show_add_to_favorites",           &settings->bools.quick_menu_show_add_to_favorites, true, DEFAULT_QUICK_MENU_SHOW_ADD_TO_FAVORITES, false);
+   SETTING_BOOL("quick_menu_show_add_to_playlist",            &settings->bools.quick_menu_show_add_to_playlist, true, DEFAULT_QUICK_MENU_SHOW_ADD_TO_PLAYLIST, false);
    SETTING_BOOL("quick_menu_show_start_recording",            &settings->bools.quick_menu_show_start_recording, true, DEFAULT_QUICK_MENU_SHOW_START_RECORDING, false);
    SETTING_BOOL("quick_menu_show_start_streaming",            &settings->bools.quick_menu_show_start_streaming, true, DEFAULT_QUICK_MENU_SHOW_START_STREAMING, false);
    SETTING_BOOL("quick_menu_show_set_core_association",       &settings->bools.quick_menu_show_set_core_association, true, DEFAULT_QUICK_MENU_SHOW_SET_CORE_ASSOCIATION, false);
@@ -2231,6 +2257,12 @@ static struct config_float_setting *populate_settings_float(
 #endif
 
    SETTING_FLOAT("video_aspect_ratio",           &settings->floats.video_aspect_ratio, true, DEFAULT_ASPECT_RATIO, false);
+   SETTING_FLOAT("video_viewport_bias_x",        &settings->floats.video_viewport_bias_x, true, DEFAULT_VIEWPORT_BIAS_X, false);
+   SETTING_FLOAT("video_viewport_bias_y",        &settings->floats.video_viewport_bias_y, true, DEFAULT_VIEWPORT_BIAS_Y, false);
+#if defined(RARCH_MOBILE)
+   SETTING_FLOAT("video_viewport_bias_portrait_x", &settings->floats.video_viewport_bias_portrait_x, true, DEFAULT_VIEWPORT_BIAS_PORTRAIT_X, false);
+   SETTING_FLOAT("video_viewport_bias_portrait_y", &settings->floats.video_viewport_bias_portrait_y, true, DEFAULT_VIEWPORT_BIAS_PORTRAIT_Y, false);
+#endif
    SETTING_FLOAT("video_refresh_rate",           &settings->floats.video_refresh_rate, true, DEFAULT_REFRESH_RATE, false);
    SETTING_FLOAT("video_autoswitch_pal_threshold", &settings->floats.video_autoswitch_pal_threshold, true, DEFAULT_AUTOSWITCH_PAL_THRESHOLD, false);
    SETTING_FLOAT("crt_video_refresh_rate",       &settings->floats.crt_video_refresh_rate, true, DEFAULT_CRT_REFRESH_RATE, false);
@@ -2511,9 +2543,6 @@ static struct config_uint_setting *populate_settings_uint(
    SETTING_UINT("ai_service_mode",              &settings->uints.ai_service_mode,            true, DEFAULT_AI_SERVICE_MODE, false);
    SETTING_UINT("ai_service_target_lang",       &settings->uints.ai_service_target_lang,     true, 0, false);
    SETTING_UINT("ai_service_source_lang",       &settings->uints.ai_service_source_lang,     true, 0, false);
-   SETTING_UINT("ai_service_poll_delay",        &settings->uints.ai_service_poll_delay,      true, DEFAULT_AI_SERVICE_POLL_DELAY, false);
-   SETTING_UINT("ai_service_text_position",     &settings->uints.ai_service_text_position,   true, DEFAULT_AI_SERVICE_TEXT_POSITION, false);
-   SETTING_UINT("ai_service_text_padding",      &settings->uints.ai_service_text_padding,    true, DEFAULT_AI_SERVICE_TEXT_PADDING, false);
 
 #ifdef HAVE_LIBNX
    SETTING_UINT("libnx_overclock",               &settings->uints.libnx_overclock, true, SWITCH_DEFAULT_CPU_PROFILE, false);
@@ -2876,6 +2905,16 @@ void config_set_defaults(void *data)
          settings->bools.bluetooth_enable, filestream_exists(LAKKA_BLUETOOTH_PATH));
    configuration_set_bool(settings, settings->bools.localap_enable, false);
    load_timezone(settings->arrays.timezone);
+#endif
+
+#if __APPLE__
+   configuration_set_bool(settings,
+         settings->bools.accessibility_enable, RAIsVoiceOverRunning());
+#endif
+
+#ifdef ANDROID
+   configuration_set_bool(settings,
+         settings->bools.accessibility_enable, is_screen_reader_enabled());
 #endif
 
 #ifdef HAVE_MENU
@@ -3720,6 +3759,10 @@ static bool config_load_file(global_t *global,
 
          strlcpy(buf + _len2, "_analog_dpad_mode", sizeof(buf) - _len2);
          CONFIG_GET_INT_BASE(conf, settings, uints.input_analog_dpad_mode[i], buf);
+
+         strlcpy(buf + _len2, "_device_reservation_type", sizeof(buf) - _len2);
+         CONFIG_GET_INT_BASE(conf, settings, uints.input_device_reservation_type[i], buf);
+
       }
    }
 
@@ -3773,9 +3816,11 @@ static bool config_load_file(global_t *global,
          strlcpy(path_settings[i].ptr, tmp_str, PATH_MAX_LENGTH);
    }
 
+#if !IOS
    if (config_get_path(conf, "libretro_directory", tmp_str, sizeof(tmp_str)))
       configuration_set_string(settings,
             settings->paths.directory_libretro, tmp_str);
+#endif
 
 #ifdef RARCH_CONSOLE
    if (conf)
@@ -5031,7 +5076,6 @@ end:
 bool config_save_autoconf_profile(const
       char *device_name, unsigned user)
 {
-   size_t len;
    unsigned i;
    char buf[PATH_MAX_LENGTH];
    char autoconf_file[PATH_MAX_LENGTH];
@@ -5252,7 +5296,6 @@ bool config_save_file(const char *path)
       size_t _len;
       char cfg[64];
       char formatted_number[4];
-
       formatted_number[0] = '\0';
 
       snprintf(formatted_number, sizeof(formatted_number), "%u", i + 1);
@@ -5272,6 +5315,9 @@ bool config_save_file(const char *path)
 
       strlcpy(cfg + _len, "_analog_dpad_mode",  sizeof(cfg) - _len);
       config_set_int(conf, cfg, settings->uints.input_analog_dpad_mode[i]);
+
+      strlcpy(cfg + _len, "_device_reservation_type",  sizeof(cfg) - _len);
+      config_set_int(conf, cfg, settings->uints.input_device_reservation_type[i]);
    }
 
    /* Boolean settings */
@@ -5604,6 +5650,25 @@ int8_t config_save_overrides(enum override_type type,
             strlcpy(cfg + _len, "_analog_dpad_mode", sizeof(cfg) - _len);
             config_set_int(conf, cfg, overrides->uints.input_analog_dpad_mode[i]);
             RARCH_DBG("[Overrides]: %s = \"%u\"\n", cfg, overrides->uints.input_analog_dpad_mode[i]);
+         }
+
+        if (settings->uints.input_device_reservation_type[i]
+               != overrides->uints.input_device_reservation_type[i])
+         {
+            strlcpy(cfg + _len, "_device_reservation_type", sizeof(cfg) - _len);
+            config_set_int(conf, cfg, overrides->uints.input_device_reservation_type[i]);
+            RARCH_DBG("[Overrides]: %s = \"%u\"\n", cfg, overrides->uints.input_device_reservation_type[i]);
+         }
+
+         /* TODO: is this whole section really necessary? Does the loop above not do this? */
+         if (!string_is_equal(settings->arrays.input_reserved_devices[i], overrides->arrays.input_reserved_devices[i]))
+         {
+            strlcpy(cfg + _len, "_device_reservation_type", sizeof(cfg) - _len);
+
+            config_set_string(conf, cfg,
+                  overrides->arrays.input_reserved_devices[i]);
+            RARCH_DBG("[Overrides]: %s = \"%s\"\n",
+                  cfg, overrides->arrays.input_reserved_devices[i]);
          }
 
          for (j = 0; j < RARCH_BIND_LIST_END; j++)

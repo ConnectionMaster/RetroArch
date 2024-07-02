@@ -21,6 +21,7 @@
 #include <streams/file_stream.h>
 #include <string/stdstring.h>
 #include <time/rtime.h>
+#include <retro_inline.h>
 
 #include "../configuration.h"
 #include "../file_path_special.h"
@@ -301,23 +302,32 @@ static void task_cloud_sync_manifest_append_dir(file_list_t *manifest,
 static struct string_list *task_cloud_sync_directory_map(void)
 {
    static struct string_list *list = NULL;
+   settings_t *settings = config_get_ptr();
+
    if (!list)
    {
       union string_list_elem_attr attr = {0};
       char  dir[PATH_MAX_LENGTH];
       list = string_list_new();
 
-      string_list_append(list, "config", attr);
-      fill_pathname_application_special(dir,
-            sizeof(dir), APPLICATION_SPECIAL_DIRECTORY_CONFIG);
-      list->elems[list->size - 1].userdata = strdup(dir);
+      if (settings->bools.cloud_sync_sync_configs) 
+      {
+         string_list_append(list, "config", attr);
+         fill_pathname_application_special(dir,
+               sizeof(dir), APPLICATION_SPECIAL_DIRECTORY_CONFIG);
+         list->elems[list->size - 1].userdata = strdup(dir);
+      }
 
-      string_list_append(list, "saves", attr);
-      list->elems[list->size - 1].userdata = strdup(dir_get_ptr(RARCH_DIR_SAVEFILE));
+      if (settings->bools.cloud_sync_sync_saves) 
+      {
+         string_list_append(list, "saves", attr);
+         list->elems[list->size - 1].userdata = strdup(dir_get_ptr(RARCH_DIR_SAVEFILE));
 
-      string_list_append(list, "states", attr);
-      list->elems[list->size - 1].userdata = strdup(dir_get_ptr(RARCH_DIR_SAVESTATE));
+         string_list_append(list, "states", attr);
+         list->elems[list->size - 1].userdata = strdup(dir_get_ptr(RARCH_DIR_SAVESTATE));
+      }
    }
+
    return list;
 }
 
@@ -389,7 +399,7 @@ static void task_cloud_sync_add_to_updated_manifest(task_cloud_sync_state_t *syn
    list->list[idx].userdata = hash;
 }
 
-static inline int task_cloud_sync_key_cmp(struct item_file *left, struct item_file *right)
+static INLINE int task_cloud_sync_key_cmp(struct item_file *left, struct item_file *right)
 {
    char *left_key  = CS_FILE_KEY(left);
    char *right_key = CS_FILE_KEY(right);

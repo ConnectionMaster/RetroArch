@@ -504,6 +504,10 @@ MSG_HASH(
    "必須グラフィック API"
    )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CORE_INFO_CORE_PATH,
+   "コアのフルパス"
+)
+MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CORE_INFO_SAVESTATE_SUPPORT_LEVEL,
    "ステートセーブ対応"
    )
@@ -1225,9 +1229,25 @@ MSG_HASH(
    "破壊的なクラウド同期"
    )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CLOUD_SYNC_SYNC_SAVES,
+   "同期: セーブ/ステート"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CLOUD_SYNC_SYNC_CONFIGS,
+   "同期: 設定ファイル"
+   )      
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_CLOUD_SYNC_SYNC_SAVES,
+   "有効にすると、セーブ/ステートがクラウドに同期されます。"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_CLOUD_SYNC_SYNC_CONFIGS,
+   "有効にすると、設定ファイルがクラウドに同期されます。"
+   )
+MSG_HASH(
    MENU_ENUM_SUBLABEL_CLOUD_SYNC_DESTRUCTIVE,
    "無効にすると、ファイルは上書きまたは削除される前にバックアップフォルダに移動されます。"
-   )
+   )      
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CLOUD_SYNC_DRIVER,
    "クラウド同期のバックエンド"
@@ -1262,11 +1282,11 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_LOGGING_SETTINGS,
-   "ロギング"
+   "ログ"
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_LOGGING_SETTINGS,
-   "ロギングの設定を変更します。"
+   "ログの設定を変更します。"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_MENU_FILE_BROWSER_SETTINGS,
@@ -1907,10 +1927,6 @@ MSG_HASH(
    "フレーム間に黒フレームを挿入し、動きをより鮮明にします。現在のディスプレイのリフレッシュレート用に準備されたオプションのみを使用してください。144Hz、165Hz など、60Hz の倍数ではないリフレッシュレートでは使用できません。1 以上のスワップ間隔、フレーム遅延または正確なフレームレートに同期と組み合わせないでください。"
    )
 MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_VIDEO_BLACK_FRAME_INSERTION_VALUE_OFF,
-   "オフ"
-   )
-MSG_HASH(
    MENU_ENUM_LABEL_VALUE_VIDEO_BLACK_FRAME_INSERTION_VALUE_120,
    "1 - 120Hz ディスプレイ用リフレッシュレート"
    )
@@ -1995,10 +2011,6 @@ MSG_HASH(
    "コンテンツフレームレートよりも高速に動作するように設計されたシェーダー効果用に、フレーム間に追加のシェーダーフレームを挿入します。現在のディスプレイ Hz に対応するオプションのみを使用してください。144Hz、165Hz など、60Hz の倍数ではないリフレッシュレートでは使用できません。"
    )
 MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_VIDEO_SHADER_SUBFRAMES_VALUE_OFF,
-   "オフ"
-   )
-MSG_HASH(
    MENU_ENUM_LABEL_VALUE_VIDEO_SHADER_SUBFRAMES_VALUE_120,
    "2 - 120Hz ディスプレイ用リフレッシュレート"
    )
@@ -2061,6 +2073,18 @@ MSG_HASH(
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_VIDEO_GPU_SCREENSHOT,
    "GPU スクリーンショット"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_VIDEO_SCAN_SUBFRAMES,
+   "ループ回転スキャンラインシミュレーション"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_VIDEO_SCAN_SUBFRAMES,
+   "画面を垂直に分割し、サブフレームの数に応じて画面の各部分をレンダリングすることで、複数のサブフレームにわたるブラウン管をカメラで撮影したときのようなループ回転スキャンラインをシミュレートします。"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_HELP_VIDEO_SCAN_SUBFRAMES,
+   "画面を垂直に分割し、画面の上端から下端にあるサブフレームの数に応じて画面の各部分をレンダリングすることで、複数のサブフレームにわたるブラウン管をカメラで撮影したときのようなループ回転スキャンラインをシミュレートします。"
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_VIDEO_GPU_SCREENSHOT,
@@ -2541,8 +2565,58 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_VIDEO_VIEWPORT_CUSTOM_Y,
-   "表示領域の Y軸位置を定義するために使用されるカスタム表示領域オフセットです。\n[整数倍拡大] が有効の場合は無視されます。"
+   "表示領域の Y 軸位置を定義するために使用されるカスタム表示領域オフセットです。\n[整数倍拡大] が有効の場合は無視されます。"
    )
+MSG_HASH(
+   MENU_ENUM_LABEL_VIDEO_VIEWPORT_BIAS_X,
+   "表示領域 X 座標補正"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_VIDEO_VIEWPORT_BIAS_X,
+   "表示領域 X 座標補正"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VIDEO_VIEWPORT_BIAS_Y,
+   "表示領域 Y 座標補正"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_VIDEO_VIEWPORT_BIAS_Y,
+   "表示領域 Y 座標補正"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_VIDEO_VIEWPORT_BIAS_X, 
+   "表示領域がコンテンツの幅より広い場合、水平方向のオフセットに使用される補正値です。0.0 は左端を、1.0 は右端を表します。"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_VIDEO_VIEWPORT_BIAS_Y, 
+   "表示領域がコンテンツの高さより高い場合、垂直方向のオフセットに使用される補正値です。0.0 は上端を、1.0 は下端を表します。"
+   )
+#if defined(RARCH_MOBILE)
+MSG_HASH(
+   MENU_ENUM_LABEL_VIDEO_VIEWPORT_BIAS_PORTRAIT_X,
+   "表示領域 X 座標補正 (縦向き)"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_VIDEO_VIEWPORT_BIAS_PORTRAIT_X,
+   "表示領域 X 座標補正 (縦向き)"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VIDEO_VIEWPORT_BIAS_PORTRAIT_Y,
+   "表示領域 Y 座標補正 (縦向き)"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_VIDEO_VIEWPORT_BIAS_PORTRAIT_Y,
+   "表示領域 Y 座標補正 (縦向き)"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_VIDEO_VIEWPORT_BIAS_PORTRAIT_X, 
+   "表示領域がコンテンツの幅より広い場合、水平方向のオフセットに使用される補正値です。0.0 は左端を、1.0 は右端を表します (縦向き)。"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_VIDEO_VIEWPORT_BIAS_PORTRAIT_Y, 
+   "表示領域がコンテンツの高さより高い場合、垂直方向のオフセットに使用される補正値です。0.0 は上端を、1.0 は下端を表します (縦向き)。"
+   )
+#endif
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_VIDEO_VIEWPORT_CUSTOM_WIDTH,
    "カスタムアスペクト比 (幅)"
@@ -4066,6 +4140,34 @@ MSG_HASH(
    "RetroArch によって認識された物理コントローラーです。"
    )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_INPUT_DEVICE_RESERVED_DEVICE_NAME,
+   "このプレイヤーの予約デバイス"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_INPUT_DEVICE_RESERVED_DEVICE_NAME,
+   "このコントローラーは予約モードに応じてこのプレイヤーに割り当てられます。"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_DEVICE_RESERVATION_NONE,
+   "予約なし"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_DEVICE_RESERVATION_PREFERRED,
+   "優先"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_DEVICE_RESERVATION_RESERVED,
+   "予約"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_INPUT_DEVICE_RESERVATION_TYPE,
+   "デバイス予約タイプ"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_INPUT_DEVICE_RESERVATION_TYPE,
+   "優先: 指定されたデバイスが存在する場合、このプレイヤーに割り当てられます。予約: このプレイヤーには他のコントローラーが割り当てられません。"
+   )
+MSG_HASH(
    MENU_ENUM_LABEL_VALUE_INPUT_REMAP_PORT,
    "割り当てるポート"
    )
@@ -4732,7 +4834,7 @@ MSG_HASH(
 
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_LOG_VERBOSITY,
-   "ロギングの出力"
+   "ログの出力"
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_LOG_VERBOSITY,
@@ -4740,7 +4842,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_FRONTEND_LOG_LEVEL,
-   "フロントエンドのロギング出力レベル"
+   "フロントエンドのログ出力レベル"
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_FRONTEND_LOG_LEVEL,
@@ -4748,7 +4850,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_LIBRETRO_LOG_LEVEL,
-   "コアのロギング出力レベル"
+   "コアのログ出力レベル"
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_LIBRETRO_LOG_LEVEL,
@@ -4780,7 +4882,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_LOG_TO_FILE,
-   "システムイベントログメッセージをファイルにリダイレクトします。[ロギングの出力] を有効にする必要があります。"
+   "システムイベントログメッセージをファイルにリダイレクトします。[ログの出力] を有効にする必要があります。"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_LOG_TO_FILE_TIMESTAMP,
@@ -4788,7 +4890,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_LOG_TO_FILE_TIMESTAMP,
-   "ファイルにロギングする際、RetroArch の各セッションごとに新たなタイムスタンプ付きのファイルに出力します。無効にすると、ログは RetroArch を再起動するたび上書きされます。"
+   "ファイルにログを出力する際、RetroArch の各セッションごとに新たなタイムスタンプ付きのファイルに出力します。無効にすると、ログは RetroArch を再起動するたび上書きされます。"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_PERFCNT_ENABLE,
@@ -6563,6 +6665,14 @@ MSG_HASH(
    "[お気に入りに追加] オプションを表示します。"
    )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_QUICK_MENU_SHOW_ADD_TO_PLAYLIST,
+   "[プレイリストに追加] を表示"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_QUICK_MENU_SHOW_ADD_TO_PLAYLIST,
+   "[プレイリストに追加] オプションを表示します。"
+   )
+MSG_HASH(
    MENU_ENUM_LABEL_VALUE_QUICK_MENU_SHOW_SET_CORE_ASSOCIATION,
    "[コアの関連付けを設定] を表示"
    )
@@ -6663,11 +6773,11 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_SETTINGS_SHOW_LOGGING,
-   "[ロギング] を表示"
+   "[ログ] を表示"
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_SETTINGS_SHOW_LOGGING,
-   "[ロギング] 設定を表示します。"
+   "[ログ] 設定を表示します。"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_SETTINGS_SHOW_FILE_BROWSER,
@@ -6890,11 +7000,11 @@ MSG_HASH(
 
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_AI_SERVICE_MODE,
-   "AIサービス出力"
+   "AI サービス出力"
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_AI_SERVICE_MODE,
-   "画像オーバーレイ (画像モード)、ダイレクトオーディオ (スピーチ)、テキスト読み上げ (ナレーター)、またはテキストオーバーレイ (テキスト) として翻訳を表示します。"
+   "テキストオーバーレイ (画像モード)、テキスト読み上げ (音声)、または NVDA (ナレーター) のようなスクリーンリーダーのいずれかで翻訳を表示します。"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_AI_SERVICE_URL,
@@ -6935,30 +7045,6 @@ MSG_HASH(
 MSG_HASH(
    MENU_ENUM_SUBLABEL_AI_SERVICE_TARGET_LANG,
    "サービスが翻訳した後の言語です。[デフォルト] は英語です。"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_POLL_DELAY,
-   "AI サービスの自動ポーリング遅延"
-   )
-MSG_HASH(
-   MENU_ENUM_SUBLABEL_AI_SERVICE_POLL_DELAY,
-   "自動コール間の最小遅延ミリ秒です。反応性が低下しますが、CPU パフォーマンスが向上します。"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_POSITION,
-   "AI サービスのテキスト位置優先"
-   )
-MSG_HASH(
-   MENU_ENUM_SUBLABEL_AI_SERVICE_TEXT_POSITION,
-   "サービスがテキストモードの場合、オーバーレイの位置を上書きします。"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_PADDING,
-   "AI サービステキスト余白 (%)"
-   )
-MSG_HASH(
-   MENU_ENUM_SUBLABEL_AI_SERVICE_TEXT_PADDING,
-   "サービスがテキストモードのとき、テキストオーバーレイに適用される垂直余白です。より多くの余白は、テキストを画面の中心に向かってプッシュします。"
    )
 
 /* Settings > Accessibility */
@@ -7030,7 +7116,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_CHEEVOS_UNLOCK_SOUND_ENABLE,
-   "実績を獲得したときにサウンドを再生します。"
+   "実績を解除したときにサウンドを再生します。"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CHEEVOS_AUTO_SCREENSHOT,
@@ -8743,6 +8829,22 @@ MSG_HASH(
    "[お気に入り] にコンテンツを追加します。"
    )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_ADD_TO_PLAYLIST,
+   "プレイリストに追加"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_ADD_TO_PLAYLIST,
+   "プレイリストにコンテンツを追加します。"
+   )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CREATE_NEW_PLAYLIST,
+   "新しいプレイリストを作成"
+   )
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_CREATE_NEW_PLAYLIST,
+   "新しいプレイリストを作成し、現在のエントリーを追加します。"
+   )
+MSG_HASH(
    MENU_ENUM_LABEL_VALUE_SET_CORE_ASSOCIATION,
    "コアの関連付けを設定"
    )
@@ -9265,11 +9367,11 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CHEAT_APPLY_AFTER_LOAD,
-   "コンテンツのロード時にチートを自動適用"
+   "ゲームの起動時にチートを自動適用"
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_CHEAT_APPLY_AFTER_LOAD,
-   "ゲームをロードしたときにチートを自動で適用します。"
+   "ゲームを起動した時にチートを自動で適用します。"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CHEAT_APPLY_AFTER_TOGGLE,
@@ -9277,7 +9379,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_CHEAT_APPLY_AFTER_TOGGLE,
-   "切り替えの直後にチートを適用します。"
+   "切り替えた時、ただちにチートを適用します。"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CHEAT_APPLY_CHANGES,
@@ -9285,7 +9387,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_CHEAT_APPLY_CHANGES,
-   "チートの変更は直ちに反映されます。"
+   "チートの変更を適用します。"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CHEAT,
@@ -9481,11 +9583,11 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CHEAT_REPEAT_COUNT,
-   "繰り返し回数"
+   "反復回数"
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_CHEAT_REPEAT_COUNT,
-   "チートを適用する回数です。他の 2 つの [繰り返し] オプションと併用することで、メモリの広い範囲に影響を与えることができます。"
+   "チートを適用する回数です。他の 2 つの [反復] オプションと併用することで、メモリの広い範囲に影響を与えることができます。"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CHEAT_REPEAT_ADD_TO_ADDRESS,
@@ -9497,7 +9599,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CHEAT_REPEAT_ADD_TO_VALUE,
-   "反復ごとにアドレスを減少"
+   "反復ごとに値を増加"
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_CHEAT_REPEAT_ADD_TO_VALUE,
@@ -9505,7 +9607,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CHEAT_RUMBLE_TYPE,
-   "メモリ内容が条件を満たしたときにコントローラを振動"
+   "メモリ内容が次のときに振動する"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CHEAT_RUMBLE_VALUE,
@@ -9963,6 +10065,18 @@ MSG_HASH(
    "すべての保留中のリクエストが RetroAchievements サーバーに同期されました。"
 )
 MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CHEEVOS_IDENTIFYING_GAME,
+   "ゲームを識別中"
+)
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CHEEVOS_FETCHING_GAME_DATA,
+   "ゲームデータを取得中"
+)
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_CHEEVOS_STARTING_SESSION,
+   "セッションを開始中"
+)
+MSG_HASH(
    MENU_ENUM_LABEL_VALUE_NOT_LOGGED_IN,
    "ログインしていません"
 )
@@ -10188,26 +10302,6 @@ MSG_HASH(
    "ナレーターモード"
    )
 MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_MODE,
-   "テキストモード"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_NARRATOR_MODE,
-   "テキスト + ナレーター"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_IMAGE_NARRATOR_MODE,
-   "画像 + ナレーター"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_POSITION_BOTTOM,
-   "下"
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_AI_SERVICE_TEXT_POSITION_TOP,
-   "先頭"
-   )
-MSG_HASH(
    MENU_ENUM_LABEL_VALUE_PLAYLIST_ENTRY_REMOVE_ENABLE_HIST_FAV,
    "履歴 & お気に入り"
    )
@@ -10325,43 +10419,43 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_LABEL_RUMBLE_TYPE_CHANGES,
-   "変更されるときに振動"
+   "変更される"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_RUMBLE_TYPE_DOES_NOT_CHANGE,
-   "変更されないときに振動"
+   "変更されない"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_RUMBLE_TYPE_INCREASE,
-   "増加"
+   "増加する"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_RUMBLE_TYPE_DECREASE,
-   "減少"
+   "減少する"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_RUMBLE_TYPE_EQ_VALUE,
-   "値が等しいときに振動"
+   "振動値と等しい"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_RUMBLE_TYPE_NEQ_VALUE,
-   "値が等しくないときに振動"
+   "振動値と等しくない"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_RUMBLE_TYPE_LT_VALUE,
-   "値が小さいときに振動"
+   "振動値より小さい"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_RUMBLE_TYPE_GT_VALUE,
-   "値が大きいときに振動"
+   "振動値より大きい"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_RUMBLE_TYPE_INCREASE_BY_VALUE,
-   "値の増加で振動"
+   "振動値ずつ増加する"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_RUMBLE_TYPE_DECREASE_BY_VALUE,
-   "値の減少で振動"
+   "振動値ずつ減少する"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_RUMBLE_PORT_16,
@@ -10377,11 +10471,11 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_LABEL_CHEAT_TYPE_INCREASE_VALUE,
-   "値で増加"
+   "値ずつ増加"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_CHEAT_TYPE_DECREASE_VALUE,
-   "値で減少"
+   "値ずつ減少"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_CHEAT_TYPE_RUN_NEXT_IF_EQ,
@@ -12907,22 +13001,6 @@ MSG_HASH( /* FIXME Should be MSG_ */
    "コアのインストールに失敗しました"
    )
 MSG_HASH(
-   MSG_AI_VIDEO_DRIVER_NOT_SUPPORTED,
-   "ビデオドライバが AI サービスに対応していません。"
-   )
-MSG_HASH(
-   MSG_AI_AUTO_MODE_ENABLED,
-   "自動翻訳を有効にしました。"
-   )
-MSG_HASH(
-   MSG_AI_AUTO_MODE_DISABLED,
-   "自動翻訳を無効にしました。"
-   )
-MSG_HASH(
-   MSG_AI_NOTHING_TO_TRANSLATE,
-   "翻訳するものはありません。"
-   )
-MSG_HASH(
    MSG_CHEAT_DELETE_ALL_INSTRUCTIONS,
    "すべてのチートを削除するには右を 5 回押してください。"
    )
@@ -13286,6 +13364,14 @@ MSG_HASH(
 MSG_HASH(
    MSG_ADD_TO_FAVORITES_FAILED,
    "お気に入りの追加に失敗しました: プレイリストがいっぱいです"
+   )
+MSG_HASH(
+   MSG_ADDED_TO_PLAYLIST,
+   "プレイリストに追加しました"
+   )
+MSG_HASH(
+   MSG_ADD_TO_PLAYLIST_FAILED,
+   "プレイリストに追加できませんでした: プレイリストがいっぱいです"
    )
 MSG_HASH(
    MSG_SET_CORE_ASSOCIATION,
@@ -14137,7 +14223,11 @@ MSG_HASH(
    )
 MSG_HASH(
    MSG_ACHIEVEMENT_UNLOCKED,
-   "実績をアンロックしました"
+   "実績を解除しました"
+   )
+MSG_HASH(
+   MSG_RARE_ACHIEVEMENT_UNLOCKED,
+   "レアな実績を解除しました"
    )
 MSG_HASH(
    MSG_LEADERBOARD_STARTED,
@@ -15047,7 +15137,7 @@ MSG_HASH(
    )
 MSG_HASH(
    MENU_ENUM_SUBLABEL_VIDEO_FRAME_REST,
-   "フレーム提示のあと、できるだけスリープさせること垂直同期の CPU 使用率の軽減を試みます。主にサードパーティのスキャンライン同期用に設計されています。"
+   "フレーム提示のあと、できるだけスリープさせることで垂直同期の CPU 使用率の軽減を試みます。主にサードパーティのスキャンライン同期用に設計されています。"
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_PAL60_ENABLE,

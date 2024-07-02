@@ -69,6 +69,14 @@
 #define DEFAULT_ASPECT_RATIO 1.3333f
 #endif
 
+#define DEFAULT_VIEWPORT_BIAS_X 0.5
+#define DEFAULT_VIEWPORT_BIAS_Y 0.5
+
+#if defined(RARCH_MOBILE)
+#define DEFAULT_VIEWPORT_BIAS_PORTRAIT_X 0.5
+#define DEFAULT_VIEWPORT_BIAS_PORTRAIT_Y 0.0
+#endif
+
 #if defined(GEKKO)
 #define DEFAULT_MOUSE_SCALE 1
 #endif
@@ -689,6 +697,7 @@
 #define DEFAULT_QUICK_MENU_SHOW_UNDO_SAVE_LOAD_STATE true
 #define DEFAULT_QUICK_MENU_SHOW_REPLAY false
 #define DEFAULT_QUICK_MENU_SHOW_ADD_TO_FAVORITES true
+#define DEFAULT_QUICK_MENU_SHOW_ADD_TO_PLAYLIST false
 #define DEFAULT_QUICK_MENU_SHOW_START_RECORDING true
 #define DEFAULT_QUICK_MENU_SHOW_START_STREAMING true
 #define DEFAULT_QUICK_MENU_SHOW_SET_CORE_ASSOCIATION true
@@ -1684,13 +1693,17 @@
 /* Only applies to Android 7.0 (API 24) and up */
 #define DEFAULT_SUSTAINED_PERFORMANCE_MODE false
 
-#if defined(ANDROID)
+#if defined(ANDROID) || defined(IOS)
 #define DEFAULT_VIBRATE_ON_KEYPRESS true
 #else
 #define DEFAULT_VIBRATE_ON_KEYPRESS false
 #endif
 
+#if defined(IOS)
+#define DEFAULT_ENABLE_DEVICE_VIBRATION true
+#else
 #define DEFAULT_ENABLE_DEVICE_VIBRATION false
+#endif
 
 /* Defines the strength of rumble effects
  * on OpenDingux devices */
@@ -1822,13 +1835,7 @@
 
 #define DEFAULT_AI_SERVICE_MODE 1
 
-#define DEFAULT_AI_SERVICE_TEXT_POSITION 0
-#define DEFAULT_AI_SERVICE_TEXT_PADDING 5
-
 #define DEFAULT_AI_SERVICE_URL "http://localhost:4404/"
-
-#define DEFAULT_AI_SERVICE_POLL_DELAY 0
-#define MAXIMUM_AI_SERVICE_POLL_DELAY 500
 
 #if defined(HAVE_FFMPEG) || defined(HAVE_MPV)
 #define DEFAULT_BUILTIN_MEDIAPLAYER_ENABLE true
