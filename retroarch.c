@@ -320,9 +320,9 @@ struct rarch_state
    char path_config_append_file[PATH_MAX_LENGTH];
    char path_config_override_file[PATH_MAX_LENGTH];
    char path_core_options_file[PATH_MAX_LENGTH];
-   char dir_system[PATH_MAX_LENGTH];
-   char dir_savefile[PATH_MAX_LENGTH];
-   char dir_savestate[PATH_MAX_LENGTH];
+   char dir_system[DIR_MAX_LENGTH];
+   char dir_savefile[DIR_MAX_LENGTH];
+   char dir_savestate[DIR_MAX_LENGTH];
 };
 
 /* Forward declarations */
@@ -1405,7 +1405,6 @@ static float audio_driver_monitor_adjust_system_rates(
 }
 
 static bool video_driver_monitor_adjust_system_rates(
-      unsigned _video_swap_interval,
       float timing_skew_hz,
       float video_refresh_rate,
       bool vrr_runloop_enable,
@@ -1444,20 +1443,20 @@ static bool video_driver_monitor_adjust_system_rates(
 static void driver_adjust_system_rates(
       runloop_state_t *runloop_st,
       video_driver_state_t *video_st,
-      settings_t *settings,
-      bool vrr_runloop_enable,
-      float video_refresh_rate,
-      float audio_max_timing_skew,
-      bool video_adaptive_vsync,
-      unsigned video_swap_interval,
-      unsigned black_frame_insertion,
-      unsigned shader_subframes)
+      settings_t *settings)
 {
    struct retro_system_av_info *av_info   = &video_st->av_info;
    const struct retro_system_timing *info =
       (const struct retro_system_timing*)&av_info->timing;
    double input_sample_rate               = info->sample_rate;
    double input_fps                       = info->fps;
+   float video_refresh_rate               = settings->floats.video_refresh_rate;
+   float audio_max_timing_skew            = settings->floats.audio_max_timing_skew;
+   unsigned video_swap_interval           = settings->uints.video_swap_interval;
+   unsigned black_frame_insertion         = settings->uints.video_black_frame_insertion;
+   unsigned shader_subframes              = settings->uints.video_shader_subframes;
+   bool vrr_runloop_enable                = settings->bools.vrr_runloop_enable;
+   bool video_adaptive_vsync              = settings->bools.video_adaptive_vsync;
 
    /* Update video swap interval if automatic
     * switching is enabled */
@@ -1504,7 +1503,6 @@ static void driver_adjust_system_rates(
       video_st->core_hz             = input_fps;
 
       if (!video_driver_monitor_adjust_system_rates(
-               settings->uints.video_swap_interval,
                timing_skew_hz,
                video_refresh_rate,
                vrr_runloop_enable,
@@ -1625,17 +1623,6 @@ void drivers_init(
       menu_st->flags             |= MENU_ST_FLAG_DATA_OWN;
 #endif
 
-   if (flags & (DRIVER_VIDEO_MASK | DRIVER_AUDIO_MASK))
-      driver_adjust_system_rates(runloop_st, video_st, settings,
-                                 settings->bools.vrr_runloop_enable,
-                                 settings->floats.video_refresh_rate,
-                                 settings->floats.audio_max_timing_skew,
-                                 settings->bools.video_adaptive_vsync,
-                                 settings->uints.video_swap_interval,
-                                 settings->uints.video_black_frame_insertion,
-                                 settings->uints.video_shader_subframes
-                                 );
-
    /* Initialize video driver */
    if (flags & DRIVER_VIDEO_MASK)
    {
@@ -1660,31 +1647,9 @@ void drivers_init(
       runloop_st->frame_time_last = 0;
    }
 
-   /* Initialize audio driver */
-   if (flags & DRIVER_AUDIO_MASK)
-   {
-      audio_driver_init_internal(
-            settings,
-            audio_st->callback.callback != NULL);
-      if (     audio_st->current_audio
-            && audio_st->current_audio->device_list_new
-            && audio_st->context_audio_data)
-         audio_st->devices_list = (struct string_list*)
-            audio_st->current_audio->device_list_new(
-                  audio_st->context_audio_data);
-   }
-
-#ifdef HAVE_MICROPHONE
-   if (flags & DRIVER_MICROPHONE_MASK)
-   {
-      microphone_driver_init_internal(settings);
-      if (mic_st->driver && mic_st->driver->device_list_new && mic_st->driver_context)
-         mic_st->devices_list = mic_st->driver->device_list_new(mic_st->driver_context);
-   }
-#endif
-
    /* Regular display refresh rate startup autoswitch based on content av_info */
-   if (flags & (DRIVER_VIDEO_MASK | DRIVER_AUDIO_MASK))
+   if (     flags & (DRIVER_VIDEO_MASK | DRIVER_AUDIO_MASK)
+         && !(runloop_st->flags & RUNLOOP_FLAG_IS_INITED))
    {
       struct retro_system_av_info *av_info = &video_st->av_info;
       float refresh_rate                   = av_info->timing.fps;
@@ -1708,17 +1673,38 @@ void drivers_init(
             bool video_switch_refresh_rate = false;
 
             video_switch_refresh_rate_maybe(&refresh_rate, &video_switch_refresh_rate);
-
             if (video_switch_refresh_rate && video_display_server_set_refresh_rate(refresh_rate))
-            {
-               int reinit_flags = DRIVER_AUDIO_MASK;
                video_monitor_set_refresh_rate(refresh_rate);
-               /* Audio must reinit after successful rate switch */
-               command_event(CMD_EVENT_REINIT, &reinit_flags);
-            }
          }
       }
    }
+
+   /* Adjust rates */
+   if (flags & (DRIVER_VIDEO_MASK | DRIVER_AUDIO_MASK))
+      driver_adjust_system_rates(runloop_st, video_st, settings);
+
+   /* Initialize audio driver */
+   if (flags & DRIVER_AUDIO_MASK)
+   {
+      audio_driver_init_internal(
+            settings,
+            audio_st->callback.callback != NULL);
+      if (     audio_st->current_audio
+            && audio_st->current_audio->device_list_new
+            && audio_st->context_audio_data)
+         audio_st->devices_list = (struct string_list*)
+            audio_st->current_audio->device_list_new(
+                  audio_st->context_audio_data);
+   }
+
+#ifdef HAVE_MICROPHONE
+   if (flags & DRIVER_MICROPHONE_MASK)
+   {
+      microphone_driver_init_internal(settings);
+      if (mic_st->driver && mic_st->driver->device_list_new && mic_st->driver_context)
+         mic_st->devices_list = mic_st->driver->device_list_new(mic_st->driver_context);
+   }
+#endif
 
    if (flags & DRIVER_CAMERA_MASK)
    {
@@ -2063,14 +2049,6 @@ bool driver_ctl(enum driver_ctl_state state, void *data)
             video_driver_state_t*video_st = video_state_get_ptr();
             unsigned
                audio_output_sample_rate   = settings->uints.audio_output_sample_rate;
-            bool vrr_runloop_enable       = settings->bools.vrr_runloop_enable;
-            float video_refresh_rate      = settings->floats.video_refresh_rate;
-            float audio_max_timing_skew   = settings->floats.audio_max_timing_skew;
-            bool video_adaptive_vsync     = settings->bools.video_adaptive_vsync;
-            unsigned video_swap_interval  = settings->uints.video_swap_interval;
-            unsigned
-               black_frame_insertion      = settings->uints.video_black_frame_insertion;
-            unsigned shader_subframes     = settings->uints.video_shader_subframes;
 
             video_monitor_set_refresh_rate(*hz);
 
@@ -2079,15 +2057,7 @@ bool driver_ctl(enum driver_ctl_state state, void *data)
             audio_st->source_ratio_current    =
             (double)audio_output_sample_rate / audio_st->input;
 
-            driver_adjust_system_rates(runloop_st, video_st, settings,
-                                       vrr_runloop_enable,
-                                       video_refresh_rate,
-                                       audio_max_timing_skew,
-                                       video_adaptive_vsync,
-                                       video_swap_interval,
-                                       black_frame_insertion,
-                                       shader_subframes
-                                       );
+            driver_adjust_system_rates(runloop_st, video_st, settings);
          }
          break;
       case RARCH_DRIVER_CTL_FIND_FIRST:
@@ -2165,7 +2135,7 @@ struct string_list *dir_list_new_special(const char *input_dir,
       bool show_hidden_files)
 {
 #if defined(HAVE_CG) || defined(HAVE_GLSL) || defined(HAVE_SLANG) || defined(HAVE_HLSL)
-   char ext_shaders[255];
+   char ext_shaders[NAME_MAX_LENGTH];
 #endif
    char ext_name[16];
    const char *exts    = NULL;
@@ -3240,7 +3210,7 @@ bool command_event(enum event_command cmd, void *data)
 
             if (settings->bools.run_ahead_enabled)
             {
-               char msg[256];
+               char msg[128];
                if (settings->bools.run_ahead_secondary_instance)
                   snprintf(msg, sizeof(msg),
                         msg_hash_to_str(MSG_RUNAHEAD_ENABLED_WITH_SECOND_INSTANCE),
@@ -3284,8 +3254,7 @@ bool command_event(enum event_command cmd, void *data)
                      NULL, MESSAGE_QUEUE_ICON_DEFAULT, MESSAGE_QUEUE_CATEGORY_INFO);
             else if (runloop_st->preempt_data)
             {
-               char msg[256];
-
+               char msg[128];
                snprintf(msg, sizeof(msg), msg_hash_to_str(MSG_PREEMPT_ENABLED),
                         settings->uints.run_ahead_frames);
                runloop_msg_queue_push(
@@ -3558,12 +3527,10 @@ bool command_event(enum event_command cmd, void *data)
       case CMD_EVENT_SAVE_STATE:
       case CMD_EVENT_SAVE_STATE_TO_RAM:
          {
-            int state_slot            = settings->ints.state_slot;
-
             if (settings->bools.savestate_auto_index)
             {
-               int new_state_slot = state_slot + 1;
-               configuration_set_int(settings, settings->ints.state_slot, new_state_slot);
+               configuration_set_int(settings, settings->ints.state_slot,
+                  command_event_get_next_savestate_auto_index(settings));
             }
          }
          if (!command_event_main_state(cmd))
@@ -3764,8 +3731,8 @@ bool command_event(enum event_command cmd, void *data)
             command_event(CMD_EVENT_AUDIO_REINIT, NULL);
 #endif
 
-         /* Recalibrate frame delay target */
-         if (settings->bools.video_frame_delay_auto)
+         /* Recalibrate frame delay target if not pausing */
+         if (settings->bools.video_frame_delay_auto && !video_st->frame_delay_pause)
             video_st->frame_delay_target = 0;
 
          break;
@@ -4202,6 +4169,14 @@ bool command_event(enum event_command cmd, void *data)
                   settings->bools.content_runtime_log_aggregate,
                   settings->paths.directory_runtime_log,
                   settings->paths.directory_playlist);
+
+            if (     runloop_st->flags & RUNLOOP_FLAG_CORE_RUNNING
+                  && settings->bools.savestate_auto_save)
+            {
+               command_event_save_auto_state();
+               content_wait_for_save_state_task();
+            }
+
             content_reset_savestate_backups();
             hwr = VIDEO_DRIVER_GET_HW_CONTEXT_INTERNAL(video_st);
 #ifdef HAVE_CHEEVOS
@@ -4499,7 +4474,7 @@ bool command_event(enum event_command cmd, void *data)
                   playlist_config_set_path(&playlist_config, str_list->elems[6].data);
                   playlist = playlist_init(&playlist_config);
 
-                  /* Check whether favourties playlist is at capacity */
+                  /* Check whether favourites playlist is at capacity */
                   if (playlist_size(playlist) >=
                         playlist_capacity(playlist))
                   {
@@ -5793,7 +5768,7 @@ void main_exit(void *args)
 
    p_rarch->flags                  &= ~RARCH_FLAGS_HAS_SET_USERNAME;
    runloop_st->flags               &= ~RUNLOOP_FLAG_IS_INITED;
-   global_get_ptr()->error_on_init  = false;
+   global_get_ptr()->flags         &= ~GLOB_FLG_ERR_ON_INIT;
 #ifdef HAVE_CONFIGFILE
    p_rarch->flags                  &= ~RARCH_FLAGS_BLOCK_CONFIG_READ;
 #endif
@@ -6164,7 +6139,7 @@ static void retroarch_print_features(void)
 
 static void retroarch_print_version(void)
 {
-   char str[255];
+   char str[256];
    str[0] = '\0';
 
    frontend_driver_attach_console();
@@ -6432,7 +6407,7 @@ static void retroarch_print_help(const char *arg0)
 #ifdef HAVE_ACCESSIBILITY
    _len += strlcpy(buf + _len,
          "      --accessibility            "
-         "Enables accessibilty for blind users using text-to-speech.\n"
+         "Enables accessibility for blind users using text-to-speech.\n"
          , sizeof(buf) - _len);
 #endif
 
@@ -6478,7 +6453,7 @@ static void retroarch_parse_input_libretro_path(const char *path, size_t path_le
    /* Check if path is a directory */
    if (
        ((path_stats & RETRO_VFS_STAT_IS_DIRECTORY) != 0)
-#if IOS
+#if defined(IOS) || defined(OSX)
        && !string_ends_with(path, ".framework")
 #endif
        )
@@ -6537,10 +6512,12 @@ static void retroarch_parse_input_libretro_path(const char *path, size_t path_le
    else
    {
       size_t _len;
+      const char *slash     = strrchr(path, '/');
+      const char *backslash = strrchr(path, '\\');
       /* If path has no extension and contains no path
        * delimiters, check if it is a core 'name', matching
        * an existing file in the cores directory */
-      if (find_last_slash(path))
+      if (((!slash || (backslash > slash)) ? (char*)backslash : (char*)slash))
          goto end;
 
       /* First check for built-in cores */
@@ -6775,7 +6752,7 @@ static bool retroarch_parse_input_and_config(
 #ifdef HAVE_CONFIGFILE
    runloop_st->flags              &= ~RUNLOOP_FLAG_OVERRIDES_ACTIVE;
 #endif
-   global->cli_load_menu_on_error  = false;
+   global->flags                  &= ~GLOB_FLG_CLI_LOAD_MENU_ON_ERR;
 
    /* Make sure we can call retroarch_parse_input several times ... */
    optind                          = 0;
@@ -6957,7 +6934,7 @@ static bool retroarch_parse_input_and_config(
             case 'd':
                {
                   unsigned new_port;
-                  char *save;
+                  char *save               = NULL;
                   char *tok                = NULL;
                   int    port              = 0;
                   unsigned id              = 0;
@@ -7274,7 +7251,7 @@ static bool retroarch_parse_input_and_config(
 #endif
                break;
             case RA_OPT_LOAD_MENU_ON_ERROR:
-               global->cli_load_menu_on_error = true;
+               global->flags |= GLOB_FLG_CLI_LOAD_MENU_ON_ERR;
                break;
             case 'e':
                {
@@ -7393,7 +7370,10 @@ static bool retroarch_parse_input_and_config(
 
    /* Update global 'content launched from command
     * line' status flag */
-   global->launched_from_cli = cli_active && (cli_core_set || cli_content_set);
+   if (cli_active && (cli_core_set || cli_content_set))
+      global->flags |=  (GLOB_FLG_LAUNCHED_FROM_CLI);
+   else
+      global->flags &= ~(GLOB_FLG_LAUNCHED_FROM_CLI);
 
    /* Copy SRM/state dirs used, so they can be reused on reentrancy. */
    if (retroarch_override_setting_is_set(RARCH_OVERRIDE_SETTING_SAVE_PATH, NULL) &&
@@ -7484,7 +7464,7 @@ bool retroarch_main_init(int argc, char *argv[])
       goto error;
    }
 
-   global->error_on_init = true;
+   global->flags |= GLOB_FLG_ERR_ON_INIT;
 
    /* Have to initialise non-file logging once at the start... */
    retro_main_log_file_init(NULL, false);
@@ -7683,8 +7663,8 @@ bool retroarch_main_init(int argc, char *argv[])
    {
 #ifdef HAVE_DYNAMIC
       /* Check if menu was active prior to core initialization */
-      if (   !global->launched_from_cli
-          ||  global->cli_load_menu_on_error
+      if (   (!(global->flags & GLOB_FLG_LAUNCHED_FROM_CLI))
+          ||   (global->flags & GLOB_FLG_CLI_LOAD_MENU_ON_ERR)
 #ifdef HAVE_MENU
           ||  (menu_st->flags & MENU_ST_FLAG_ALIVE)
 #endif
@@ -7767,8 +7747,8 @@ bool retroarch_main_init(int argc, char *argv[])
 
    command_event(CMD_EVENT_SET_PER_GAME_RESOLUTION, NULL);
 
-   global->error_on_init            = false;
-   runloop_st->flags               |= RUNLOOP_FLAG_IS_INITED;
+   global->flags                   &= ~GLOB_FLG_ERR_ON_INIT;
+   runloop_st->flags               |=  RUNLOOP_FLAG_IS_INITED;
 
 #ifdef HAVE_DISCORD
    {
@@ -8226,7 +8206,7 @@ bool should_quit_on_close(void)
    global_t   *global     = global_get_ptr();
    if (       ((settings->uints.quit_on_close_content ==
                QUIT_ON_CLOSE_CONTENT_CLI)
-            && global->launched_from_cli)
+            && (global->flags & GLOB_FLG_LAUNCHED_FROM_CLI))
             || (settings->uints.quit_on_close_content ==
                QUIT_ON_CLOSE_CONTENT_ENABLED)
       )
@@ -8251,7 +8231,7 @@ bool retroarch_main_quit(void)
 
 #if !defined(HAVE_DYNAMIC)
    {
-      /* Salamander sets RUNLOOP_FLAG_SHUTDOWN_INITIATED prior, so we need to handle it seperately */
+      /* Salamander sets RUNLOOP_FLAG_SHUTDOWN_INITIATED prior, so we need to handle it separately */
       /* config_save_file_salamander() must be called independent of config_save_on_exit */
       config_save_file_salamander();
       if (config_save_on_exit)

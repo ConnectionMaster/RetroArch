@@ -19,11 +19,13 @@
 import Combine
 import UIKit
 
+@available(iOS 13, *)
 @objc public protocol EmulatorTouchMouseHandlerDelegate: AnyObject {
    func handleMouseClick(isLeftClick: Bool, isPressed: Bool)
    func handleMouseMove(x: CGFloat, y: CGFloat)
 }
 
+@available(iOS 13, *)
 @objcMembers public class EmulatorTouchMouseHandler: NSObject, UIPointerInteractionDelegate {
    enum MouseHoldState {
       case notHeld, wait, held
@@ -112,13 +114,7 @@ import UIKit
    }
    
    public func touchesBegan(touches: Set<UITouch>, event: UIEvent?) {
-      guard enabled, let touch = touches.first else {
-         if #available(iOS 13.4, *), let _ = touches.first {
-            let isLeftClick=(event?.buttonMask == UIEvent.ButtonMask.button(1))
-            delegate?.handleMouseClick(isLeftClick: isLeftClick, isPressed: true)
-         }
-         return
-      }
+      guard enabled, let touch = touches.first else { return }
       if primaryTouch == nil {
          primaryTouch = TouchInfo(touch: touch, origin: touch.location(in: view), holdState: .wait)
          if touch.tapCount == 2 {
@@ -130,15 +126,7 @@ import UIKit
    }
    
    public func touchesEnded(touches: Set<UITouch>, event: UIEvent?) {
-      guard enabled else {
-         if #available(iOS 13.4, *) {
-            let isLeftClick=(event?.buttonMask == UIEvent.ButtonMask.button(1))
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-               self?.delegate?.handleMouseClick(isLeftClick: isLeftClick, isPressed: false)
-            }
-         }
-         return
-      }
+      guard enabled else { return }
       for touch in touches {
          if touch == primaryTouch?.touch {
             if touch.tapCount > 0 {
@@ -175,13 +163,7 @@ import UIKit
    }
    
    public func touchesCancelled(touches: Set<UITouch>, event: UIEvent?) {
-      guard enabled else {
-         if #available(iOS 13.4, *) {
-            let isLeftClick=(event?.buttonMask == UIEvent.ButtonMask.button(1))
-            delegate?.handleMouseClick(isLeftClick: isLeftClick, isPressed: false)
-         }
-         return
-      }
+      guard enabled else { return }
       for touch in touches {
          if touch == primaryTouch?.touch {
             endHold()

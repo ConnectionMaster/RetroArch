@@ -506,6 +506,10 @@ static bool webdav_sync_begin(cloud_sync_complete_handler_t cb, void *user_data)
    if (string_is_empty(url))
       return false;
 
+#ifndef HAVE_SSL
+   if (strncmp(url, "https", 5) == 0)
+      return false;
+#endif
    /* TODO: LOCK? */
 
    if (!strstr(url, "://"))
@@ -706,7 +710,7 @@ static void webdav_do_update(bool success, webdav_cb_state_t *webdav_cb_st)
 static bool webdav_update(const char *path, RFILE *rfile, cloud_sync_complete_handler_t cb, void *user_data)
 {
    webdav_cb_state_t *webdav_cb_st = (webdav_cb_state_t*)calloc(1, sizeof(webdav_cb_state_t));
-   char               dir[PATH_MAX_LENGTH];
+   char               dir[DIR_MAX_LENGTH];
 
    /* TODO: if !settings->bools.cloud_sync_destructive, should move to deleted/ first */
 
@@ -824,7 +828,7 @@ static bool webdav_delete(const char *path, cloud_sync_complete_handler_t cb, vo
    }
    else
    {
-      char dir[PATH_MAX_LENGTH];
+      char dir[DIR_MAX_LENGTH];
       size_t _len = strlcpy(dir, "deleted/", sizeof(dir));
       fill_pathname_basedir(dir + _len, path, sizeof(dir) - _len);
       webdav_ensure_dir(dir, webdav_do_backup, webdav_cb_st);

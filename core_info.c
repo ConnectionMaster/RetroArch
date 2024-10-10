@@ -1569,7 +1569,7 @@ static bool core_info_get_file_id(const char *core_filename,
    /* > Remove extension */
    strlcpy(core_file_id, core_filename, len);
    path_remove_extension(core_file_id);
-#if IOS
+#if defined(IOS) || defined(OSX)
    /* iOS framework names, to quote Apple:
     * "must contain only alphanumerics, dots, hyphens and must not end with a dot."
     *
@@ -2032,8 +2032,7 @@ static core_info_list_t *core_info_list_new(const char *path,
    /* Read core info cache, if enabled */
    if (enable_cache)
    {
-      core_info_cache_list = core_info_cache_read(info_dir);
-      if (!core_info_cache_list)
+      if (!(core_info_cache_list = core_info_cache_read(info_dir)))
          goto error;
    }
 #endif

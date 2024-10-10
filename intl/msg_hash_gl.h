@@ -2700,28 +2700,8 @@ MSG_HASH(
    "VSync está habilitado ata que o rendemento cae por debaixo da taxa de actualización obxectivo. Pode minimizar o tartamudeo cando o rendemento cae por debaixo do tempo real e ser máis eficiente enerxéticamente."
    )
 MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_VIDEO_FRAME_DELAY,
-   "Retraso de fotogramas (ms)"
-   )
-MSG_HASH(
-   MENU_ENUM_SUBLABEL_VIDEO_FRAME_DELAY,
-   "Reduce a latencia ao custo dun maior risco de tartamudeo de vídeo. Engade un atraso en milisegundos despois da presentación do vídeo e antes do cadro principal."
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_HELP_VIDEO_FRAME_DELAY,
-   "Establece cantos milisegundos hai que atrasar despois da presentación do vídeo antes de executar o núcleo. Pode reducir a latencia a costa dun maior risco de tartamudeo. O máximo é %d."
-   )
-MSG_HASH(
    MENU_ENUM_LABEL_VALUE_VIDEO_FRAME_DELAY_AUTO,
    "Retraso de fotograma automático"
-   )
-MSG_HASH(
-   MENU_ENUM_SUBLABEL_VIDEO_FRAME_DELAY_AUTO,
-   "Reduce temporalmente o \"Retraso de fotogramas\" efectivo para evitar caídas de fotogramas futuras. O punto de partida é a metade do tempo cando o \"Retraso de fotograma\" é 0."
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_HELP_VIDEO_FRAME_DELAY_AUTO,
-   "Diminúe temporalmente o \"Retraso de fotogramas\" efectivo ata que a taxa de actualización obxectivo sexa estable. A medición comeza a partir da metade do tempo de fotograma cando o \"Retraso de fotograma\" é 0. Por exemplo. 8 para NTSC e 10 para PAL."
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_VIDEO_FRAME_DELAY_EFFECTIVE,
@@ -3253,6 +3233,14 @@ MSG_HASH(
    MENU_ENUM_SUBLABEL_INPUT_REMAP_BINDS_ENABLE,
    "Anular os enlaces de entrada cos enlaces reasignados definidos para o núcleo actual."
    )
+MSG_HASH(
+   MENU_ENUM_LABEL_VALUE_INPUT_REMAP_SORT_BY_CONTROLLER_ENABLE,
+   "Sort Remaps By Gamepad"
+   )   
+MSG_HASH(
+   MENU_ENUM_SUBLABEL_INPUT_REMAP_SORT_BY_CONTROLLER_ENABLE,
+   "Remaps will only apply to the active gamepad in which they were saved."
+   )   
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_INPUT_AUTODETECT_ENABLE,
    "Auto configurar"
@@ -9965,10 +9953,6 @@ MSG_HASH(
    "O servidor de RetroAchievements non é accesible. Tentarase de novo ata que teña éxito ou se peche a aplicación."
 )
 MSG_HASH(
-   MENU_ENUM_LABEL_CHEEVOS_SERVER_RECONNECTED,
-   "Todas as solicitudes pendentes sincronizáronse correctamente co servidor de RetroAchievements."
-)
-MSG_HASH(
    MENU_ENUM_LABEL_VALUE_CHEEVOS_IDENTIFYING_GAME,
    "Xogo de identificación"
 )
@@ -13382,10 +13366,6 @@ MSG_HASH(
    "Non se pode inferir a nova ruta de configuración. Usa a hora actual."
    )
 MSG_HASH(
-   MSG_CHEEVOS_HARDCORE_MODE_ENABLE,
-   "Logros Modo Hardcore activado, estado de gardar e rebobinado desactiváronse."
-   )
-MSG_HASH(
    MSG_COMPARING_WITH_KNOWN_MAGIC_NUMBERS,
    "Comparando cos números máxicos coñecidos..."
    )
@@ -14574,6 +14554,10 @@ MSG_HASH(
    "Completado %s"
    )
 MSG_HASH(
+   MSG_CHEEVOS_HARDCORE_MODE_ENABLE,
+   "Logros Modo Hardcore activado, estado de gardar e rebobinado desactiváronse."
+   )
+MSG_HASH(
    MSG_RESAMPLER_QUALITY_LOWEST,
    "O máis baixo"
    )
@@ -15046,14 +15030,6 @@ MSG_HASH(
 MSG_HASH(
    MENU_ENUM_LABEL_HELP_GAMEMODE_ENABLE,
    "A activación de Linux GameMode pode mellorar a latencia, solucionar problemas de crepitación de audio e maximizar o rendemento xeral configurando automaticamente a CPU e a GPU para obter o mellor rendemento.\nPara que funcione, é necesario instalar o software GameMode. Consulte https://github.com/FeralInteractive/gamemode para obter información sobre como instalar GameMode."
-   )
-MSG_HASH(
-   MENU_ENUM_LABEL_VALUE_VIDEO_FRAME_REST,
-   "Pausa de fotogramas"
-   )
-MSG_HASH(
-   MENU_ENUM_SUBLABEL_VIDEO_FRAME_REST,
-   "Tentar reducir o uso da CPU pola sincronía vertical durmindo o máximo posible tras a presentación do fotograma. Deseñado principalmente para a sincronización de terceiros por scanlines."
    )
 MSG_HASH(
    MENU_ENUM_LABEL_VALUE_PAL60_ENABLE,
